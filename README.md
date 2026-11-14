@@ -12,7 +12,7 @@ start/stop permission checks, settings navigation and privacy-safe local diagnos
 | --- | --- | --- | --- |
 | app | Android app | all six core modules | Launcher, permission setup, diagnostics and composition |
 | core:model | JVM | none | Shared state, coordinates and permission setup contracts |
-| core:physics | JVM | model | Future deterministic simulation |
+| core:physics | JVM | model | Deterministic fixed-step free motion |
 | core:planner | JVM | model, physics | Future shot planning |
 | core:vision | Android library | model | Future OpenCV adapter |
 | core:capture | Android library | model | Future screen capture |
@@ -30,6 +30,11 @@ top-left origin, +X right and +Y down; velocities use mm/s and prediction times 
 elapsed seconds. Snapshots own immutable ordered collections and stable caller-assigned
 IDs. See the [model contract decision](docs/adr/0002-shared-model-contracts.md) for
 validation, screen transforms, precision, ownership and fixture compatibility.
+
+The [CB-14 free-motion integrator](docs/adr/0004-deterministic-free-motion.md) uses
+fixed steps and an explicit simulation clock, bounded by a configured step budget.
+It supports collision-free motion only; friction, contact response and pocketing
+remain future work. Out-of-bounds or nonfinite updates fail explicitly.
 
 ## Build
 
