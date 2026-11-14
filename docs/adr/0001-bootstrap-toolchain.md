@@ -7,7 +7,7 @@ vision, capture and overlay are Android libraries. The app composes them. No imp
 interfaces or native libraries are added before a feature ticket needs them.
 
 Toolchain: AGP 9.3.1, Kotlin 2.4.21, Gradle 9.5.0, Java/Kotlin target 17, CI JDK 21,
-Android compile/target 36, min 26, build tools 36.0.0. AGP 9 supplies built-in Kotlin;
+Android compile 37 / target 36, min 26, build tools 36.0.0. AGP 9 supplies built-in Kotlin;
 do not apply org.jetbrains.kotlin.android. The root KGP dependency supplies the aligned
 Kotlin plugin version. AGP 9.4 is newer, but the Kotlin compatibility table currently
 lists full support only through AGP 9.3.1, so use that stable compatible combination.
