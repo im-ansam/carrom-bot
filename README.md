@@ -21,13 +21,13 @@ The APK intentionally has no launcher Activity, permissions or services yet.
 
 ## Build
 
-Install JDK 21 (Java/Kotlin bytecode target 17), Android SDK command-line tools, platform 37,
+Install JDK 21 (Java/Kotlin bytecode target 17), Android SDK command-line tools, platform 36,
 and build-tools 36.0.0. Set JAVA_HOME and ANDROID_HOME, or set sdk.dir in ignored local.properties.
 Use a current Android Studio version supporting AGP 9.3.
 
 ```powershell
 sdkmanager --licenses
-sdkmanager "platforms;android-37" "build-tools;36.0.0" "platform-tools"
+sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
 .\gradlew.bat projects assembleDebug test check lint
 ```
 
@@ -38,7 +38,7 @@ Without an Android SDK:
 ```
 
 On Unix, substitute `./gradlew`. The wrapper downloads its checksum-pinned Gradle distribution.
-Global Kotlin and Gradle installations are unnecessary. Minimum Android API is 26; target API is 36 and compile API is 37.
+Global Kotlin and Gradle installations are unnecessary. Minimum Android API is 26; target API is 36 and compile API is 36.
 JUnit 4 is available in every module; source and test directories will be added with real implementations.
 NO-SOURCE means no tests ran, not that behavior was tested.
 

@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "io.github.carrombot"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.carrombot"
@@ -20,6 +20,7 @@ android {
     }
 
     lint {
+        lintConfig = rootProject.file("config/lint/lint.xml")
         abortOnError = true
         warningsAsErrors = true
     }

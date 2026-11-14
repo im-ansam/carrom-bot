@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "io.github.carrombot.core.vision"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26
@@ -16,6 +16,7 @@ android {
     }
 
     lint {
+        lintConfig = rootProject.file("config/lint/lint.xml")
         abortOnError = true
         warningsAsErrors = true
     }

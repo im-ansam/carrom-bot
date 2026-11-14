@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!-- SDK 37 cannot be installed by CI, even with command-line tools 15859902.
+         Remove this exact-message exception when that platform becomes installable.
+         Other dependency and SDK upgrade diagnostics remain enabled. -->
+    <issue id="GradleDependency">
+        <ignore regexp="^A newer version of compileSdk than 36 is available: 37$" />
+    </issue>
+</lint>

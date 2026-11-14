@@ -50,7 +50,7 @@ Android debug build and Lint remain outstanding until SDK setup or hosted CI is 
    https://developer.android.com/studio#command-line-tools-only
 3. Set ANDROID_HOME to the SDK root and add cmdline-tools/latest/bin to PATH.
 4. Review/accept SDK licenses with sdkmanager --licenses.
-5. Run sdkmanager "platforms;android-37" "build-tools;36.0.0" "platform-tools".
+5. Run sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools".
 6. Run gradlew.bat projects assembleDebug test check lint.
 
 No emulator/device checks are claimed. There is no Android behavior or instrumentation
