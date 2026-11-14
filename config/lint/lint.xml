@@ -4,6 +4,6 @@
          Remove this exact-message exception when that platform becomes installable.
          Other dependency and SDK upgrade diagnostics remain enabled. -->
     <issue id="GradleDependency">
-        <ignore regexp="^A newer version of compileSdk than 36 is available: 37$" />
+        <ignore regexp="^A newer version of `compileSdk` than 36 is available: 37$" />
     </issue>
 </lint>
