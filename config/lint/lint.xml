@@ -8,6 +8,6 @@
     </issue>
     <!-- The same unavailable platform prevents a target SDK 37 migration. -->
     <issue id="OldTargetApi">
-        <ignore path="app/build.gradle.kts" />
+        <ignore path="**/app/build.gradle.kts" />
     </issue>
 </lint>
