@@ -1,7 +1,8 @@
 # Carrom Bot
 
-Minimal Kotlin/Android foundation for [CB-10](https://ansamcd.atlassian.net/browse/CB-10),
-under [CB-1](https://ansamcd.atlassian.net/browse/CB-1). No Carrom AI functionality is implemented.
+Kotlin/Android foundation under [CB-1](https://ansamcd.atlassian.net/browse/CB-1),
+with shared geometry, board-state and prediction data contracts from
+[CB-12](https://ansamcd.atlassian.net/browse/CB-12). No Carrom AI behavior is implemented.
 
 ## Modules
 
@@ -18,6 +19,12 @@ under [CB-1](https://ansamcd.atlassian.net/browse/CB-1). No Carrom AI functional
 Dependencies point inward to platform-free modules; core modules never depend on app.
 OpenCV and coroutine dependencies are deferred until a ticket needs them.
 The APK intentionally has no launcher Activity, permissions or services yet.
+
+Shared types live in `io.github.carrombot.core.model`. Board geometry uses millimetres,
+top-left origin, +X right and +Y down; velocities use mm/s and prediction times use
+elapsed seconds. Snapshots own immutable ordered collections and stable caller-assigned
+IDs. See the [model contract decision](docs/adr/0002-shared-model-contracts.md) for
+validation, screen transforms, precision, ownership and fixture compatibility.
 
 ## Build
 
@@ -46,7 +53,7 @@ Without an Android SDK:
 
 On Unix, substitute `./gradlew`. The wrapper downloads its checksum-pinned Gradle distribution.
 Global Kotlin and Gradle installations are unnecessary. Minimum Android API is 26; target API is 36 and compile API is 36.
-JUnit 4 is available in every module; source and test directories will be added with real implementations.
+JUnit 4 is available in every module; core:model contains JVM contract tests and a versioned synthetic fixture.
 NO-SOURCE means no tests ran, not that behavior was tested.
 
 ## Quality and delivery
