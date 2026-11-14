@@ -22,11 +22,26 @@ An empty initial main commit provides a PR base; all project files belong to the
   compilation/test tasks reported NO-SOURCE. No production code or dummy tests were added.
 - gradlew.bat -PjvmOnly ktlintFormat: passed after fixing analyzer artifact selection.
 - gradlew.bat -PjvmOnly check: passed, including ktlintCheck and Detekt.
+- gradlew.bat -PjvmOnly projects test check: passed again after the plugin classpath fix.
+- gradlew.bat projects: passed with all seven requested modules.
+- git diff --cached --check: passed. Staged paths reviewed; narrow credential-pattern
+  scan found no matching token/private-key material. This is not a comprehensive secret audit.
+- Wrapper JAR checksum matched Gradle's published wrapper checksum.
 - gradlew.bat projects assembleDebug test check lint: blocked by missing Android SDK
   after resolving the initial shared Kotlin/AGP classloader issue.
   Android compilation, debug APK and Lint were not validated locally.
 
-Final branch CI results are recorded below once available.
+## GitHub Actions
+
+[Run 43552089449](https://github.com/im-ansam/carrom-bot/actions/runs/43552089449)
+failed before either job started. Both jobs had no steps or logs. GitHub's failure
+annotation says recent account payments failed or the spending limit must be increased.
+This is an account blocker, not a successful or failed build execution.
+
+Open GitHub account Settings > Billing & plans, resolve the payment issue or increase
+the Actions spending limit, then rerun CI from the Actions page (or use gh run rerun
+43552089449). No billing settings were changed by the agent.
+Android debug build and Lint remain outstanding until SDK setup or hosted CI is available.
 
 ## Local setup still required
 
