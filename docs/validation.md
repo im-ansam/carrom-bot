@@ -1,57 +1,66 @@
-# CB-10 validation
+# Contribution workflow and validation audit (CB-11)
 
-Checked 2026-11-14 on Windows. Initial repository had no files, commits or remotes.
-Remote supplied by the owner: https://github.com/im-ansam/carrom-bot.git (private, empty).
-An empty initial main commit provides a PR base; all project files belong to the CB-10 branch.
+Audited 2026-11-14 against CB-11, parent CB-1 and dependency CB-10.
+Base: `4950f2897692e6fd43e7bfcac0090de6ff625d2b` on main, delivered by
+[merged PR #2](https://github.com/im-ansam/carrom-bot/pull/2).
 
-## Local environment
+## Acceptance criteria audit
 
-- Git and GitHub CLI available; authenticated GitHub access verified with network permissions.
-- Java 18.0.1.1 works directly from C:\Program Files\Java\jdk-18.0.1.1.
-  The PATH Java shim hung, so commands explicitly set JAVA_HOME.
-- No global Kotlin/Gradle installation; the wrapper downloads Gradle 9.5.0.
-- No Android SDK detected at the conventional location or via SDK environment variables.
-- Atlassian MCP available; CB-10 and CB-1 read.
-- Build caches are in ignored .tools/gradle-home; no machine-specific paths committed in build files.
+| Requirement | Evidence |
+| --- | --- |
+| One ticket, keyed branch/commit, review and Jira handoff | Root AGENTS.md and README contribution steps |
+| Reproducible setup | README clone, JDK/SDK prerequisites and wrapper commands |
+| PR checklist | .github/pull_request_template.md covers scope, tests, contracts, resources and secrets |
+| CI on pull requests | Existing .github/workflows/ci.yml has pull_request trigger and JVM/Android jobs; no duplicate android-ci.yml |
+| Build, unit-test tasks and lint | JVM projects/test/check and Android projects/assembleDebug/test/check/lint in CI |
+| Keep credentials and local data out of Git | .gitignore excludes local.properties, .env, signing files, caches and captures; AGENTS.md requires diff review |
 
-## Executed checks
+No application code or dummy tests were needed. Existing checklist and
+engineering instructions already satisfy the corresponding criteria. Ignore rules
+reduce accidental commits; they are not a substitute for reviewing staged files.
+Following review, restricted the existing workflow's push trigger to `main`:
+PR branch updates run through `pull_request` once, while merged changes still get
+main validation. Manual dispatch remains available. Both JVM and Android jobs remain.
 
-- Official wrapper downloaded; distribution pinned to its published SHA-256.
-  Wrapper JAR SHA-256: 497c8c2a7e5031f6aa847f88104aa80a93532ec32ee17bdb8d1d2f67a194a9c7.
-- gradlew.bat -PjvmOnly projects test: domain projects configured and JARs built;
-  compilation/test tasks reported NO-SOURCE. No production code or dummy tests were added.
-- gradlew.bat -PjvmOnly ktlintFormat: passed after fixing analyzer artifact selection.
-- gradlew.bat -PjvmOnly check: passed, including ktlintCheck and Detekt.
-- gradlew.bat -PjvmOnly projects test check: passed again after the plugin classpath fix.
-- gradlew.bat projects: passed with all seven requested modules.
-- git diff --cached --check: passed. Staged paths reviewed; narrow credential-pattern
-  scan found no matching token/private-key material. This is not a comprehensive secret audit.
-- Wrapper JAR checksum matched Gradle's published wrapper checksum.
-- gradlew.bat projects assembleDebug test check lint: blocked by missing Android SDK
-  after resolving the initial shared Kotlin/AGP classloader issue.
-  Android compilation, debug APK and Lint were not validated locally.
+## Verified hosted evidence
 
-## GitHub Actions
+[Main CI 43606138170](https://github.com/im-ansam/carrom-bot/actions/runs/43606138170)
+and [branch CI 43606191610](https://github.com/im-ansam/carrom-bot/actions/runs/43606191610)
+passed both `JVM and quality` and `Android build and lint` at the base commit.
+The previously reported billing blocker is historical and resolved.
+Run 43606144713 is a successful Dependabot run, not build evidence.
 
-[Run 43552089449](https://github.com/im-ansam/carrom-bot/actions/runs/43552089449)
-failed before either job started. Both jobs had no steps or logs. GitHub's failure
-annotation says recent account payments failed or the spending limit must be increased.
-This is an account blocker, not a successful or failed build execution.
+These jobs run on JDK 21. The Android job installs command-line tools 15859902,
+platform-tools, platform 36 and build-tools 36.0.0. Explicit platform-tools avoids
+requesting the obsolete tools package. Compile/target SDK remain 36 because SDK 37
+installation failed during bootstrap even with those command-line tools.
+`config/lint/lint.xml` suppresses only the exact compileSdk 36-to-37 upgrade message
+and OldTargetApi in app/build.gradle.kts; remove these when platform 37 is installable.
+Warnings-as-errors remains enabled. App vector icon and explicit legacy/modern backup
+exclusions are intentional bootstrap fixes and are preserved.
 
-Open GitHub account Settings > Billing & plans, resolve the payment issue or increase
-the Actions spending limit, then rerun CI from the Actions page (or use gh run rerun
-43552089449). No billing settings were changed by the agent.
-Android debug build and Lint remain outstanding until SDK setup or hosted CI is available.
+## CB-11 local validation
 
-## Local setup still required
+Windows, direct JDK 18.0.1.1 via JAVA_HOME (local fallback; CI uses JDK 21), no local
+Android SDK. Used a separate `git clone --no-hardlinks --single-branch --branch
+codex/CB-11-workflow-audit` of the repository at the base commit, outside the source
+checkout, with no project build outputs or local.properties. Reused the ignored
+.tools/gradle-home dependency cache; this is clean-source validation, not an empty-cache
+or offline-install test. Only documentation changes follow that base.
 
-1. Install JDK 21 and set JAVA_HOME to its installation directory.
-2. Install Android Studio or the official Android command-line tools:
-   https://developer.android.com/studio#command-line-tools-only
-3. Set ANDROID_HOME to the SDK root and add cmdline-tools/latest/bin to PATH.
-4. Review/accept SDK licenses with sdkmanager --licenses.
-5. Run sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools".
-6. Run gradlew.bat projects assembleDebug test check lint.
+- `actionlint.exe .github/workflows/ci.yml` (actionlint 1.7.7): exit 0, no diagnostics.
+- `gradlew.bat -PjvmOnly projects test check --console=plain`: exit 0; six tasks executed,
+  including ktlintCheck and Detekt. Model, physics and planner compile/resource/test
+  tasks are NO-SOURCE. Kotlin configuration-error checks SKIPPED because no errors exist.
+  No domain behavior was compiled or tested.
+- An initial clone under .validation also returned success but ktlint warned that no
+  files matched, because that path is excluded. Discarded as analyzer evidence and
+  repeated outside .validation; the repeat above had no such warning.
+- `gradlew.bat projects assembleDebug test check lint --console=plain`: exit 1,
+  dependency resolution for `:app:compileDebugJavaWithJavac` failed with `SDK location
+  not found`. Android build/test/lint tasks did not execute locally. Hosted base CI
+  evidence above covers the unchanged build configuration.
+- `git diff --check`: exit 0 (Git reports CRLF-to-LF normalization notices).
 
-No emulator/device checks are claimed. There is no Android behavior or instrumentation
-test source yet; add device tests with the first platform feature.
+No emulator/device or instrumentation validation is claimed: no platform behavior or
+test sources exist yet. Full local Android validation requires the README SDK setup.
