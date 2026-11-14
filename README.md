@@ -21,6 +21,13 @@ The APK intentionally has no launcher Activity, permissions or services yet.
 
 ## Build
 
+Start from a fresh checkout (GitHub access to this private repository is required):
+
+```powershell
+git clone https://github.com/im-ansam/carrom-bot.git
+cd carrom-bot
+```
+
 Install JDK 21 (Java/Kotlin bytecode target 17), Android SDK command-line tools, platform 36,
 and build-tools 36.0.0. Set JAVA_HOME and ANDROID_HOME, or set sdk.dir in ignored local.properties.
 Use a current Android Studio version supporting AGP 9.3.
@@ -46,7 +53,17 @@ NO-SOURCE means no tests ran, not that behavior was tested.
 
 See [AGENTS.md](AGENTS.md), [tool decisions](docs/adr/0001-bootstrap-toolchain.md),
 [Codex setup](docs/codex-setup.md), and [validation evidence](docs/validation.md).
-CI checks JVM modules without the SDK, then builds and lints all Android modules.
+For each contribution, read the Jira ticket, parent and dependencies, then branch from
+current `main` as `codex/CB-<number>-<description>`. Implement one ticket, run the
+applicable checks above, review the full diff, and commit as `CB-<number>: <summary>`.
+Open a PR against `main` using the [PR checklist](.github/pull_request_template.md),
+record actual validation and the PR in Jira, and request human review. Stop until review;
+merging requires explicit authorization. Never commit local SDK paths or credentials.
+
+CI checks JVM modules without the SDK and builds and lints all Android modules.
+Both jobs in [.github/workflows/ci.yml](.github/workflows/ci.yml) run on pull requests;
+they may run concurrently. No separate `android-ci.yml` is needed.
+Push validation runs only on `main`, so updating a PR branch triggers one CI run.
 All Action revisions are pinned. Dependabot proposes Gradle and Action updates.
 The private repository has no paid dependency-review integration; enable GitHub secret scanning and
 dependency security alerts in repository settings where the account supports them.
