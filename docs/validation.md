@@ -15,9 +15,12 @@ Base: `4950f2897692e6fd43e7bfcac0090de6ff625d2b` on main, delivered by
 | Build, unit-test tasks and lint | JVM projects/test/check and Android projects/assembleDebug/test/check/lint in CI |
 | Keep credentials and local data out of Git | .gitignore excludes local.properties, .env, signing files, caches and captures; AGENTS.md requires diff review |
 
-No application code or dummy tests were needed. Existing workflow, checklist and
+No application code or dummy tests were needed. Existing checklist and
 engineering instructions already satisfy the corresponding criteria. Ignore rules
 reduce accidental commits; they are not a substitute for reviewing staged files.
+Following review, restricted the existing workflow's push trigger to `main`:
+PR branch updates run through `pull_request` once, while merged changes still get
+main validation. Manual dispatch remains available. Both JVM and Android jobs remain.
 
 ## Verified hosted evidence
 

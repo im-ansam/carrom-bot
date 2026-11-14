@@ -63,6 +63,7 @@ merging requires explicit authorization. Never commit local SDK paths or credent
 CI checks JVM modules without the SDK and builds and lints all Android modules.
 Both jobs in [.github/workflows/ci.yml](.github/workflows/ci.yml) run on pull requests;
 they may run concurrently. No separate `android-ci.yml` is needed.
+Push validation runs only on `main`, so updating a PR branch triggers one CI run.
 All Action revisions are pinned. Dependabot proposes Gradle and Action updates.
 The private repository has no paid dependency-review integration; enable GitHub secret scanning and
 dependency security alerts in repository settings where the account supports them.
