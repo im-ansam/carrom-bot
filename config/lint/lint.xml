@@ -6,4 +6,8 @@
     <issue id="GradleDependency">
         <ignore regexp="^A newer version of `compileSdk` than 36 is available: 37$" />
     </issue>
+    <!-- The same unavailable platform prevents a target SDK 37 migration. -->
+    <issue id="OldTargetApi">
+        <ignore path="app/build.gradle.kts" />
+    </issue>
 </lint>
