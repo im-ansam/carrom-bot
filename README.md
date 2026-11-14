@@ -3,13 +3,15 @@
 Kotlin/Android foundation under [CB-1](https://ansamcd.atlassian.net/browse/CB-1),
 with shared geometry, board-state and prediction data contracts from
 [CB-12](https://ansamcd.atlassian.net/browse/CB-12). No Carrom AI behavior is implemented.
+The launchable app from [CB-13](https://ansamcd.atlassian.net/browse/CB-13) provides
+start/stop permission checks, settings navigation and privacy-safe local diagnostics.
 
 ## Modules
 
 | Module | Platform | Direct project dependencies | Responsibility |
 | --- | --- | --- | --- |
-| app | Android app | all six core modules | Future composition and UI entry point |
-| core:model | JVM | none | Shared state and coordinate contracts |
+| app | Android app | all six core modules | Launcher, permission setup, diagnostics and composition |
+| core:model | JVM | none | Shared state, coordinates and permission setup contracts |
 | core:physics | JVM | model | Future deterministic simulation |
 | core:planner | JVM | model, physics | Future shot planning |
 | core:vision | Android library | model | Future OpenCV adapter |
@@ -18,7 +20,10 @@ with shared geometry, board-state and prediction data contracts from
 
 Dependencies point inward to platform-free modules; core modules never depend on app.
 OpenCV and coroutine dependencies are deferred until a ticket needs them.
-The APK intentionally has no launcher Activity, permissions or services yet.
+The launcher checks overlay access and asks for screen-sharing consent only after Start.
+Denied/revoked permissions are visible and retryable. Consent results are discarded;
+there is no capture service, floating overlay or active assistant in this build.
+See the [permission setup decision](docs/adr/0003-permission-setup.md).
 
 Shared types live in `io.github.carrombot.core.model`. Board geometry uses millimetres,
 top-left origin, +X right and +Y down; velocities use mm/s and prediction times use
@@ -55,6 +60,11 @@ On Unix, substitute `./gradlew`. The wrapper downloads its checksum-pinned Gradl
 Global Kotlin and Gradle installations are unnecessary. Minimum Android API is 26; target API is 36 and compile API is 36.
 JUnit 4 is available in every module; core:model contains JVM contract tests and a versioned synthetic fixture.
 NO-SOURCE means no tests ran, not that behavior was tested.
+
+Compile instrumentation with `.\gradlew.bat :app:assembleDebugAndroidTest` and run it
+with `.\gradlew.bat connectedDebugAndroidTest` on a disposable emulator. Permission
+tests temporarily change this app's overlay app-op, restore its previous mode and
+intercept system consent screens; they never start actual screen capture.
 
 ## Quality and delivery
 
