@@ -1,0 +1,19 @@
+config:
+  validation: true
+
+complexity:
+  LongMethod:
+    threshold: 60
+  LongParameterList:
+    functionThreshold: 6
+    constructorThreshold: 8
+
+style:
+  MagicNumber:
+    excludes: ['**/test/**', '**/androidTest/**', '**/*.gradle.kts']
+  WildcardImport:
+    active: true
+
+potential-bugs:
+  UnsafeCast:
+    active: true

@@ -1,0 +1,35 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+android {
+    namespace = "io.github.carrombot.core.vision"
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk = 26
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    lint {
+        lintConfig = rootProject.file("config/lint/lint.xml")
+        abortOnError = true
+        warningsAsErrors = true
+    }
+}
+
+kotlin {
+    explicitApi()
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+dependencies {
+    implementation(project(":core:model"))
+    testImplementation(libs.junit)
+}
