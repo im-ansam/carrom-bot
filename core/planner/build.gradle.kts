@@ -16,7 +16,7 @@ java {
 }
 
 dependencies {
-    implementation(project(":core:model"))
-    implementation(project(":core:physics"))
+    api(project(":core:model"))
+    api(project(":core:physics"))
     testImplementation(libs.junit)
 }
