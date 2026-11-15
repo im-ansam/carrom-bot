@@ -80,7 +80,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun captureDenialCanRetryAndGrantedResultDoesNotStartCapture() {
+    fun captureDenialCanRetryAndInvalidGrantFailsWithoutFrames() {
         setOverlayMode("allow")
         val deniedRequests = interceptPermissionScreens(Activity.RESULT_CANCELED)
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
@@ -93,13 +93,28 @@ class MainActivityTest {
             val grantedRequests = interceptPermissionScreens(Activity.RESULT_OK)
             scenario.onActivity { it.findViewById<Button>(R.id.start_button).performClick() }
             instrumentation.waitForIdleSync()
+            awaitStatus(scenario, R.string.status_capture_failed)
             scenario.onActivity { activity ->
-                assertStatus(activity, R.string.status_consent_confirmed)
+                assertStatus(activity, R.string.status_capture_failed)
                 activity.findViewById<Button>(R.id.stop_button).performClick()
                 assertStatus(activity, R.string.status_idle)
             }
             assertEquals(1, grantedRequests.get())
         }
+    }
+
+    private fun awaitStatus(
+        scenario: ActivityScenario<MainActivity>,
+        resource: Int,
+    ) {
+        val deadline = android.os.SystemClock.elapsedRealtime() + 5_000
+        var observed = ""
+        while (android.os.SystemClock.elapsedRealtime() < deadline) {
+            scenario.onActivity { observed = text(it, R.id.setup_status).toString() }
+            if (observed == context.getString(resource)) return
+            Thread.sleep(100)
+        }
+        assertEquals(context.getString(resource), observed)
     }
 
     @Test

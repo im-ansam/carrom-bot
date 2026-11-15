@@ -4,7 +4,8 @@ Kotlin/Android foundation under [CB-1](https://ansamcd.atlassian.net/browse/CB-1
 with shared geometry, board-state and prediction data contracts from
 [CB-12](https://ansamcd.atlassian.net/browse/CB-12). No Carrom AI behavior is implemented.
 The launchable app from [CB-13](https://ansamcd.atlassian.net/browse/CB-13) provides
-start/stop permission checks, settings navigation and privacy-safe local diagnostics.
+start/stop controls, settings navigation and privacy-safe local diagnostics. [CB-20](https://ansamcd.atlassian.net/browse/CB-20)
+adds consent-based screen capture in a foreground service.
 
 ## Modules
 
@@ -15,15 +16,22 @@ start/stop permission checks, settings navigation and privacy-safe local diagnos
 | core:physics | JVM | model | Fixed-step shots, drag, power, swept contacts, banks and pocket capture |
 | core:planner | JVM | model, physics | Future shot planning |
 | core:vision | Android library | model | Future OpenCV adapter |
-| core:capture | Android library | model | Future screen capture |
+| core:capture | Android library | model | Bounded MediaProjection frames, resize and resource ownership |
 | core:overlay | Android library | model | Future aiming overlay |
 
 Dependencies point inward to platform-free modules; core modules never depend on app.
 OpenCV and coroutine dependencies are deferred until a ticket needs them.
 The launcher checks overlay access and asks for screen-sharing consent only after Start.
-Denied/revoked permissions are visible and retryable. Consent results are discarded;
-there is no capture service, floating overlay or active assistant in this build.
-See the [permission setup decision](docs/adr/0003-permission-setup.md).
+Denied/revoked permissions are retryable. A successful, fresh consent result is handed once
+to the foreground capture service. It continues across app backgrounding and recreation;
+Stop in the app or capture notification ends sharing. Process death never restores capture.
+Frames are borrowed synchronously in memory, closed after delivery and never saved or logged.
+The controls show only frame counts and pixel dimensions. There is no vision, aiming or
+floating overlay in this build. On Android 13+, the foreground service can run without
+notification permission; Android may show its controls only in Active apps when notifications
+are disabled. The app's Stop control remains available.
+See the [permission setup decision](docs/adr/0003-permission-setup.md) and its
+[capture extension](docs/adr/0010-consented-screen-capture.md).
 
 Shared types live in `io.github.carrombot.core.model`. Board geometry uses millimetres,
 top-left origin, +X right and +Y down; velocities use mm/s and prediction times use
@@ -85,8 +93,11 @@ NO-SOURCE means no tests ran, not that behavior was tested.
 
 Compile instrumentation with `.\gradlew.bat :app:assembleDebugAndroidTest` and run it
 with `.\gradlew.bat connectedDebugAndroidTest` on a disposable emulator. Permission
-tests temporarily change this app's overlay app-op, restore its previous mode and
-intercept system consent screens; they never start actual screen capture.
+tests temporarily change this app's overlay app-op and restore its previous mode.
+Denial tests intercept permission screens; capture integration tests accept real Android
+consent on a disposable emulator, acquire frames in memory and verify rotation, background,
+stop, revocation and failure cleanup. No captured pixels are persisted. Run only on a
+disposable emulator with no personal accounts or screen content. See [CB-20 validation](docs/validation-cb-20.md).
 
 ## Quality and delivery
 
