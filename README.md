@@ -14,7 +14,7 @@ adds consent-based screen capture in a foreground service.
 | app | Android app | all six core modules | Launcher, permission setup, diagnostics and composition |
 | core:model | JVM | none | Shared state, coordinates and permission setup contracts |
 | core:physics | JVM | model | Fixed-step shots, drag, power, swept contacts, banks and pocket capture |
-| core:planner | JVM | model, physics | Candidate contracts, simulation evaluation and deterministic ranking |
+| core:planner | JVM | model, physics | Direct/cut geometry, candidate contracts, simulation evaluation and ranking |
 | core:vision | Android library | model | Board geometry, object recognition, tracking and stationary state qualification |
 | core:capture | Android library | model | Bounded MediaProjection frames, resize and resource ownership |
 | core:overlay | Android library | model | Future aiming overlay |
@@ -90,8 +90,11 @@ for the SDK-free candidate evaluation command, measured baseline and limitations
 [CB-25 planner contracts](docs/adr/0015-planner-contracts.md) describe all seven shot
 families and custom family keys, pocket targets, normalized power and coarse contact
 constraints. Evaluation consumes the unified simulator and rejects truncation,
-fouls and missed targets before scoring advisory utility. Candidate generation,
-geometric route checking and optimization remain future work.
+fouls and missed targets before scoring advisory utility.
+[CB-26 direct/cut generators](docs/adr/0016-direct-cut-geometry.md) expose ghost/contact
+geometry and conservatively check corridors and pocket apertures using caller-supplied
+legal positions, aim points, power and calibration. Physics evaluation is still required;
+other shot families and optimization remain future work.
 
 ## Build
 
