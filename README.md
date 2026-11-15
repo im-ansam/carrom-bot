@@ -54,6 +54,11 @@ independently confirmed caller inventory. Missing/ambiguous objects and obstacle
 readiness. Capture/planner/overlay integration remains CB-35; synthetic sequence tests
 do not establish real-game accuracy. See [validation](docs/validation-cb-23.md).
 
+[CB-24 offline vision evaluation](tools/vision-eval/README.md) scores hash-pinned
+board/object fixtures and actual device prediction snapshots with per-class errors
+and edge-local scale calibration. See the [synthetic dataset](test-fixtures/vision/README.md)
+and [decision](docs/adr/0014-vision-evaluation.md); these results do not establish game accuracy.
+
 Shared types live in `io.github.carrombot.core.model`. Board geometry uses millimetres,
 top-left origin, +X right and +Y down; velocities use mm/s and prediction times use
 elapsed seconds. Snapshots own immutable ordered collections and stable caller-assigned
