@@ -15,23 +15,30 @@ adds consent-based screen capture in a foreground service.
 | core:model | JVM | none | Shared state, coordinates and permission setup contracts |
 | core:physics | JVM | model | Fixed-step shots, drag, power, swept contacts, banks and pocket capture |
 | core:planner | JVM | model, physics | Future shot planning |
-| core:vision | Android library | model | Future OpenCV adapter |
+| core:vision | Android library | model | OpenCV board boundary, normalization and pixel/mm transform |
 | core:capture | Android library | model | Bounded MediaProjection frames, resize and resource ownership |
 | core:overlay | Android library | model | Future aiming overlay |
 
 Dependencies point inward to platform-free modules; core modules never depend on app.
-OpenCV and coroutine dependencies are deferred until a ticket needs them.
+OpenCV 4.12.0 is confined to the vision adapter; coroutine dependencies remain deferred.
 The launcher checks overlay access and asks for screen-sharing consent only after Start.
 Denied/revoked permissions are retryable. A successful, fresh consent result is handed once
 to the foreground capture service. It continues across app backgrounding and recreation;
 Stop in the app or capture notification ends sharing. Process death never restores capture.
 Frames are borrowed synchronously in memory, closed after delivery and never saved or logged.
-The controls show only frame counts and pixel dimensions. There is no vision, aiming or
-floating overlay in this build. On Android 13+, the foreground service can run without
+The controls show only frame counts and pixel dimensions. The standalone vision adapter
+is not wired into capture yet; aiming and floating overlays remain future work.
+On Android 13+, the foreground service can run without
 notification permission; Android may show its controls only in Active apps when notifications
 are disabled. The app's Stop control remains available.
 See the [permission setup decision](docs/adr/0003-permission-setup.md) and its
 [capture extension](docs/adr/0010-consented-screen-capture.md).
+
+[CB-21 board geometry](docs/adr/0011-board-geometry.md) detects a complete high-contrast
+near-square boundary, returns an immutable homography with geometric confidence,
+and can normalize borrowed RGBA frames. Missing/ambiguous geometry fails explicitly.
+Physical bounds must be supplied by the caller. Synthetic fixtures establish mechanics,
+not actual game accuracy; see [validation](docs/validation-cb-21.md).
 
 Shared types live in `io.github.carrombot.core.model`. Board geometry uses millimetres,
 top-left origin, +X right and +Y down; velocities use mm/s and prediction times use
