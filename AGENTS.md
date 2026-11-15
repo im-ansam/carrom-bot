@@ -10,8 +10,18 @@
 - Never silently ignore failures. Report exact commands, outcomes, NO-SOURCE tasks and outstanding validation.
 - Create a PR against the default branch with implementation summary, Jira link and actual test evidence.
 - Update Jira with the PR and validation when integration is available. Do not mark Done before review.
-- Stop after opening the PR; wait for review before starting another ticket.
-- Never merge PRs or modify protected branches without explicit authorization.
+- Standing user authorization (2026-11-15): continue each ticket through PR review and merge without
+  requesting routine confirmation. Wait for automatic Codex review; address findings, validate and push
+  fixes, then wait for re-review. If a push does not trigger review, request it with `@codex review`.
+- Merge only after Codex review explicitly completes with no unresolved findings and a thumbs-up on
+  the latest PR head, all required CI checks pass, and merge requirements are satisfied. Never bypass
+  branch protection or treat a stale review as approval. This authorizes normal PR merges, not direct
+  pushes to protected branches.
+- After verifying merge, update Jira with review/CI/merge evidence and mark the ticket Done. Start the
+  next dependency-ready Jira ticket in a new Codex chat, carrying forward these instructions and
+  relevant state. Repeat this one-ticket-per-chat loop without waiting for user intervention.
+- Pause only for a concrete blocker requiring user input, unavailable authorization or external
+  access; report the blocker clearly. Do not create concurrent implementation chats for this loop.
 - Never commit secrets, credentials, signing keys, local SDK paths or sensitive captured screen data.
 
 ## Kotlin conventions
