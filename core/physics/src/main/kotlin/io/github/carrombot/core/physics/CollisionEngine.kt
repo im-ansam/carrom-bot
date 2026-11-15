@@ -14,6 +14,7 @@ import kotlin.math.hypot
 internal class CollisionEngine(
     private val config: PhysicsConfig,
     private val timeline: ShotTimeline? = null,
+    private val checkpoint: () -> Unit = {},
 ) {
     private val friction = config.deceleration.takeIf { it > 0.0 }?.let(::FrictionModel)
     private val resolver = CollisionResolver(config)
@@ -35,6 +36,7 @@ internal class CollisionEngine(
         var remaining = config.timeStepSeconds
         var iterations = 0
         while (true) {
+            checkpoint()
             eventTime = startSeconds + (config.timeStepSeconds - remaining)
             require(iterations++ < config.maxCollisionIterations) { "Collision iteration budget exhausted" }
             capture(bodies, board)
@@ -76,6 +78,7 @@ internal class CollisionEngine(
         var changed = false
         for (i in bodies.indices) {
             for (j in i + 1 until bodies.size) {
+                checkpoint()
                 if (gap(bodies[i], bodies[j]) <= config.contactTolerance) {
                     val (a, b) = resolver.resolve(bodies[i], bodies[j])
                     recordBodyImpact(bodies[i], bodies[j], a, b)
@@ -95,6 +98,7 @@ internal class CollisionEngine(
         var interval = remaining
         for (i in bodies.indices) {
             for (j in i + 1 until bodies.size) {
+                checkpoint()
                 interval = minOf(interval, sweep.time(bodies[i], bodies[j], remaining))
             }
         }
@@ -156,7 +160,10 @@ internal class CollisionEngine(
         var interval = horizon
         if (timeline != null) {
             for (body in bodies) {
-                for (pocket in board.pockets) interval = minOf(interval, pockets.time(body, pocket, horizon))
+                for (pocket in board.pockets) {
+                    checkpoint()
+                    interval = minOf(interval, pockets.time(body, pocket, horizon))
+                }
             }
         }
         return interval
@@ -170,6 +177,7 @@ internal class CollisionEngine(
         val sortedPockets = board.pockets.sortedBy { it.id }
         val iterator = bodies.listIterator()
         while (iterator.hasNext()) {
+            checkpoint()
             val body = iterator.next()
             val pocket = sortedPockets.firstOrNull { pockets.contains(body, it) }
             if (pocket != null) {
