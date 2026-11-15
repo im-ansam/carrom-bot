@@ -13,24 +13,31 @@ import io.github.carrombot.core.model.SetupStage
 import io.github.carrombot.databinding.ActivityMainBinding
 
 /**
- * User-initiated permission setup, not a capture owner. Never obtains MediaProjection,
- * starts a service, attaches an overlay, or stores/forwards consent data. A fresh instance
- * starts stopped, including after rotation/process recreation. CB-20 owns actual capture.
+ * Requests fresh user consent and hands it once to the capture service. Activity recreation
+ * discards pending consent; an already-running service continues independently in the foreground.
  */
 public class MainActivity : Activity() {
     private lateinit var binding: ActivityMainBinding
     private var state = AssistantSetupState()
     private var pendingCaptureRequest: Int? = null
     private var nextRequestCode = FIRST_CAPTURE_REQUEST
+    private lateinit var captureConnection: CaptureConnection
+    private var captureState: CaptureSnapshot? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        captureConnection =
+            CaptureConnection(this) { snapshot ->
+                captureState = snapshot
+                render()
+            }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) binding.screenTitle.isAccessibilityHeading = true
         binding.startButton.setOnClickListener { startSetup() }
         binding.stopButton.setOnClickListener {
             pendingCaptureRequest = null
+            stopCapture()
             update(DiagnosticEvent.STOP_PRESSED, state.stop())
         }
         binding.settingsButton.setOnClickListener {
@@ -40,21 +47,28 @@ public class MainActivity : Activity() {
         update(DiagnosticEvent.APP_OPENED, state)
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!captureConnection.connect() && captureState?.phase in ACTIVE_PHASES) captureState = null
+    }
+
     override fun onResume() {
         super.onResume()
         update(DiagnosticEvent.PERMISSION_STATE, state.observeOverlay(Settings.canDrawOverlays(this)))
+        if (!state.overlayAllowed) stopCapture()
         if (state.stage != SetupStage.CAPTURE_REQUESTED) pendingCaptureRequest = null
     }
 
     override fun onStop() {
         super.onStop()
+        captureConnection.disconnect()
         if (state.stage != SetupStage.OVERLAY_REQUESTED && state.stage != SetupStage.CAPTURE_REQUESTED) {
             update(DiagnosticEvent.SESSION_RESET, state.stop())
         }
     }
 
     // Framework Activity results keep the foundation free of an extra runtime UI dependency.
-    @Deprecated("Framework callback retained for the permission-only foundation")
+    @Deprecated("Framework callback retained for consent handling")
     @Suppress("DEPRECATION")
     override fun onActivityResult(
         requestCode: Int,
@@ -66,32 +80,43 @@ public class MainActivity : Activity() {
         pendingCaptureRequest = null
         val observed = state.observeOverlay(Settings.canDrawOverlays(this))
         update(DiagnosticEvent.PERMISSION_STATE, observed.captureResult(resultCode == RESULT_OK && data != null))
-        // The single-use consent Intent is deliberately discarded, even after RESULT_OK.
+        if (state.stage == SetupStage.CONSENT_CONFIRMED && data != null) {
+            try {
+                captureState = CaptureSnapshot(CapturePhase.STARTING)
+                startForegroundService(
+                    Intent(this, CaptureService::class.java).apply {
+                        action = CaptureService.ACTION_START
+                        putExtra(CaptureService.EXTRA_CONSENT, data)
+                    },
+                )
+                captureConnection.connect()
+                render()
+            } catch (_: RuntimeException) {
+                captureState = CaptureSnapshot(CapturePhase.FAILED)
+                render()
+            }
+        }
     }
 
     private fun startSetup() {
+        if (captureState?.phase == CapturePhase.CAPTURING || captureState?.phase == CapturePhase.STARTING) return
+        captureState = null
         val observed = state.observeOverlay(Settings.canDrawOverlays(this))
         val requested = observed.start()
         update(DiagnosticEvent.START_PRESSED, requested)
         if (requested == observed) return
         try {
-            when (requested.stage) {
-                SetupStage.OVERLAY_REQUESTED -> {
-                    startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
-                }
-
-                SetupStage.CAPTURE_REQUESTED -> {
-                    requestCaptureConsent()
-                }
-
-                else -> {
-                    return
-                }
+            if (requested.stage == SetupStage.OVERLAY_REQUESTED) {
+                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
+            } else if (requested.stage == SetupStage.CAPTURE_REQUESTED) {
+                requestCaptureConsent()
             }
         } catch (_: ActivityNotFoundException) {
-            permissionLaunchFailed()
+            pendingCaptureRequest = null
+            update(DiagnosticEvent.PERMISSION_UI_UNAVAILABLE, state.launchFailed())
         } catch (_: SecurityException) {
-            permissionLaunchFailed()
+            pendingCaptureRequest = null
+            update(DiagnosticEvent.PERMISSION_UI_UNAVAILABLE, state.launchFailed())
         }
     }
 
@@ -103,17 +128,16 @@ public class MainActivity : Activity() {
         startActivityForResult(manager.createScreenCaptureIntent(), requestCode)
     }
 
-    private fun permissionLaunchFailed() {
-        pendingCaptureRequest = null
-        update(DiagnosticEvent.PERMISSION_UI_UNAVAILABLE, state.launchFailed())
-    }
-
     private fun update(
         event: DiagnosticEvent,
         next: AssistantSetupState,
     ) {
         state = next
         logDiagnostic(event, state)
+        render()
+    }
+
+    private fun render() {
         val overlayLabel = if (state.overlayAllowed) R.string.overlay_allowed else R.string.overlay_not_allowed
         binding.overlayStatus.setText(overlayLabel)
         binding.setupStatus.setText(
@@ -128,10 +152,19 @@ public class MainActivity : Activity() {
             },
         )
         binding.startButton.isEnabled =
-            state.stage != SetupStage.OVERLAY_REQUESTED && state.stage != SetupStage.CAPTURE_REQUESTED
+            state.stage != SetupStage.OVERLAY_REQUESTED && state.stage != SetupStage.CAPTURE_REQUESTED &&
+            captureState?.phase != CapturePhase.STARTING && captureState?.phase != CapturePhase.CAPTURING
+        captureState?.let { binding.setupStatus.text = it.statusText(this) }
+    }
+
+    private fun stopCapture() {
+        stopService(Intent(this, CaptureService::class.java))
+        captureConnection.disconnect()
+        captureState = null
     }
 
     private companion object {
         const val FIRST_CAPTURE_REQUEST = 100
+        val ACTIVE_PHASES = setOf(CapturePhase.STARTING, CapturePhase.CAPTURING)
     }
 }

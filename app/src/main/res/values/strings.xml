@@ -3,7 +3,7 @@
     <string name="app_name">Carrom Bot</string>
     <string name="start_assistant">Start assistant</string>
     <string name="stop_assistant">Stop</string>
-    <string name="setup_explanation">The assistant is not available in this build. Start checks overlay access and screen-sharing consent only. No screen is captured and no floating overlay is shown.</string>
+    <string name="setup_explanation">Start checks overlay access and asks Android for screen-sharing consent. Authorized frames are processed in memory until you stop sharing. No screen images are saved. Aiming assistance and floating overlays are not available yet.</string>
     <string name="overlay_allowed">Overlay access: allowed</string>
     <string name="overlay_not_allowed">Overlay access: not allowed</string>
     <string name="status_idle">Stopped. Press Start to check permissions. Each screen-sharing check asks for fresh consent.</string>
@@ -11,7 +11,14 @@
     <string name="status_overlay_denied">Overlay access was not granted or was revoked. You can retry with Start. Nothing is running.</string>
     <string name="status_capture_requested">Waiting for your screen-sharing choice. Nothing is being captured.</string>
     <string name="status_capture_denied">Screen sharing was declined. You can retry with Start. Nothing is running.</string>
-    <string name="status_consent_confirmed">Screen-sharing consent confirmed and discarded. The assistant is not available yet; nothing is running.</string>
+    <string name="status_consent_confirmed">Screen-sharing consent received.</string>
+    <string name="status_capture_starting">Starting authorized screen capture…</string>
+    <string name="status_capturing">Capturing authorized screen frames: %1$d (%2$d × %3$d). Stop here or use the capture notification.</string>
+    <string name="status_capture_revoked">Android ended screen sharing. Capture resources have been released. Press Start for fresh consent.</string>
+    <string name="status_capture_failed">Screen capture failed. Nothing is being captured. Press Start to retry with fresh consent.</string>
+    <string name="capture_channel">Screen sharing</string>
+    <string name="capture_notification_title">Carrom Bot is sharing your screen</string>
+    <string name="capture_notification_text">Authorized frames stay in memory. Tap Stop to end sharing.</string>
     <string name="status_unavailable">Android could not open the permission screen. Nothing is running. You can retry with Start.</string>
     <string name="settings_title">Settings</string>
     <string name="settings_explanation">Assistant settings will be added as features become available.\n\nDiagnostics record only event names and permission states in local Android logs. Screen content, consent tokens and personal data are never logged.</string>
