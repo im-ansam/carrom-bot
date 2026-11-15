@@ -59,32 +59,12 @@ class ShotSimulatorTest {
 
     @Test
     fun `versioned golden shot families share one deterministic simulator`() {
-        val rows =
-            requireNotNull(javaClass.getResourceAsStream("/shot-v1.csv"))
-                .bufferedReader()
-                .use { it.readLines() }
-                .filterNot { it.startsWith("#") || it.isBlank() }
-        for (row in rows) {
-            val fields = row.split(';')
-            val launch = fields[1].split(',').map(String::toDouble)
-            val discs =
-                fields[2].split('/').map {
-                    val v = it.split(',')
-                    Disc(
-                        v[0],
-                        DiscKind.BLACK,
-                        Circle(Vec2(v[1].toDouble(), v[2].toDouble()), 5.0),
-                        Vec2(v[3].toDouble(), v[4].toDouble()),
-                    )
-                }
-            val pockets =
-                fields[3].split('/').map {
-                    val v = it.split(',')
-                    Pocket(v[0], Circle(Vec2(v[1].toDouble(), v[2].toDouble()), 20.0))
-                }
-            val board = board(discs, pockets, Vec2(launch[0], launch[1]))
-            val velocity = Vec2(launch[2], launch[3])
-            val config = PhysicsConfig(2.0, 1, wallTangentialRestitution = fields[8].toDouble())
+        for (fixture in ShotFixture.load()) {
+            val fields = fixture.fields
+            val discs = fixture.board.discs
+            val board = fixture.board
+            val velocity = fixture.velocity
+            val config = fixture.config
             val result = run(board, velocity, config)
             val expectedStriker = fields[9].split(',').map(String::toDouble)
             assertEquals(expectedStriker[0], result.finalState.striker.circle.center.x, 1e-7)
