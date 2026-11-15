@@ -12,7 +12,7 @@ start/stop permission checks, settings navigation and privacy-safe local diagnos
 | --- | --- | --- | --- |
 | app | Android app | all six core modules | Launcher, permission setup, diagnostics and composition |
 | core:model | JVM | none | Shared state, coordinates and permission setup contracts |
-| core:physics | JVM | model | Deterministic fixed-step free motion |
+| core:physics | JVM | model | Fixed-step motion, configurable drag and striker power |
 | core:planner | JVM | model, physics | Future shot planning |
 | core:vision | Android library | model | Future OpenCV adapter |
 | core:capture | Android library | model | Future screen capture |
@@ -33,8 +33,11 @@ validation, screen transforms, precision, ownership and fixture compatibility.
 
 The [CB-14 free-motion integrator](docs/adr/0004-deterministic-free-motion.md) uses
 fixed steps and an explicit simulation clock, bounded by a configured step budget.
-It supports collision-free motion only; friction, contact response and pocketing
-remain future work. Out-of-bounds or nonfinite updates fail explicitly.
+The [CB-15 drag and power models](docs/adr/0005-friction-and-power.md) add configurable
+constant deceleration, analytic stopping distance and an invertible linear striker
+power mapping. Zero configured drag preserves free motion. These models require
+calibration; contact response and pocketing remain future work. Only collision-free
+horizons are supported. Out-of-bounds or nonfinite updates fail explicitly.
 
 ## Build
 
