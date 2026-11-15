@@ -18,5 +18,6 @@ java {
 dependencies {
     api(project(":core:model"))
     api(project(":core:physics"))
+    implementation(libs.coroutines.core)
     testImplementation(libs.junit)
 }

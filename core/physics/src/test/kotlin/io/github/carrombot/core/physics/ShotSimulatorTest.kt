@@ -16,6 +16,31 @@ import org.junit.Test
 
 class ShotSimulatorTest {
     @Test
+    fun `checkpoint preserves golden evidence and abort exceptions propagate unchanged`() {
+        val fixture = ShotFixture.load().first()
+        val shot = ShotInput(fixture.board, Vec2(100.0, 0.0))
+        val config = PhysicsConfig(0.01, 100, deceleration = 10.0)
+        val simulator = ShotSimulator()
+        val baseline = simulator.simulate(fixture.board, shot, config)
+        var checkpoints = 0
+        val checked = simulator.simulate(fixture.board, shot, config) { checkpoints++ }
+        assertTrue(checkpoints > config.maxSteps)
+        assertEquals(baseline.prediction.frames, checked.prediction.frames)
+        assertEquals(baseline.events, checked.events)
+        assertEquals(baseline.captures, checked.captures)
+        val cancelled = java.util.concurrent.CancellationException("stop")
+        var visits = 0
+        val thrown =
+            assertThrows(java.util.concurrent.CancellationException::class.java) {
+                simulator.simulate(fixture.board, shot, config) {
+                    if (++visits == 5) throw cancelled
+                }
+            }
+        org.junit.Assert.assertSame(cancelled, thrown)
+        assertEquals(5, visits)
+    }
+
+    @Test
     fun `fractional striker capture at wall preserves strict containment`() {
         val initial =
             BoardState(

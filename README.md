@@ -14,13 +14,13 @@ adds consent-based screen capture in a foreground service.
 | app | Android app | all six core modules | Launcher, permission setup, diagnostics and composition |
 | core:model | JVM | none | Shared state, coordinates and permission setup contracts |
 | core:physics | JVM | model | Fixed-step shots, drag, power, swept contacts, banks and pocket capture |
-| core:planner | JVM | model, physics | Direct/cut, striker/disc banks and contact chains, simulation evaluation and ranking |
+| core:planner | JVM | model, physics | Shot generation, simulation ranking, cooperative budgeted scheduling |
 | core:vision | Android library | model | Board geometry, object recognition, tracking and stationary state qualification |
 | core:capture | Android library | model | Bounded MediaProjection frames, resize and resource ownership |
 | core:overlay | Android library | model | Future aiming overlay |
 
 Dependencies point inward to platform-free modules; core modules never depend on app.
-OpenCV 4.12.0 is confined to the vision adapter; coroutine dependencies remain deferred.
+OpenCV 4.12.0 is confined to vision; kotlinx-coroutines-core 1.10.2 is confined to planner scheduling.
 The launcher checks overlay access and asks for screen-sharing consent only after Start.
 Denied/revoked permissions are retryable. A successful, fresh consent result is handed once
 to the foreground capture service. It continues across app backgrounding and recreation;
@@ -109,6 +109,10 @@ returns an empty plan list.
 explicit target sets, retains deterministic parameter/detection/power scenarios,
 marks uncertain plans and exposes a higher-confidence feasible fallback when tested.
 Confidence is a sampled acceptance fraction, not a calibrated game success probability.
+[CB-31 scheduling](docs/adr/0021-budgeted-planner-scheduling.md) runs proposal evaluation
+on coroutine workers with simulation/time budgets, cooperative cancellation, exact
+request-local physics caching and power-policy pruning. Partial results identify
+unexamined candidates and retain only complete evidence; deadlines are cooperative.
 
 ## Build
 

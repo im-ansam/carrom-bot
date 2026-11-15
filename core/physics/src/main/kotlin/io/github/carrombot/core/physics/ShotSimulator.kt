@@ -8,15 +8,21 @@ import io.github.carrombot.core.model.ShotPrediction
 
 /** Unified bounded shot simulation. Invalid arithmetic/contact geometry throws without partial success. */
 public class ShotSimulator {
-    /** [boardState] must equal the shot's pre-impulse snapshot. Units are mm and seconds. */
+    /**
+     * [boardState] must equal the shot's pre-impulse snapshot. Units are mm and seconds.
+     * [checkpoint] cooperatively aborts by throwing; no partial evidence is returned.
+     * The hook must not mutate inputs. The simulator itself reads no clock.
+     */
     public fun simulate(
         boardState: BoardState,
         shot: ShotInput,
         config: PhysicsConfig,
+        checkpoint: () -> Unit = {},
     ): SimulationResult {
         require(boardState == shot.boardState) { "Shot and board snapshots must agree" }
+        checkpoint()
         val timeline = ShotTimeline()
-        val engine = CollisionEngine(config, timeline)
+        val engine = CollisionEngine(config, timeline, checkpoint)
         var board =
             BoardState(
                 boardState.bounds,
@@ -26,11 +32,13 @@ public class ShotSimulator {
             )
         val frames = arrayListOf(PredictionFrame(0.0, boardState))
         for (step in 1..config.maxSteps) {
+            checkpoint()
             board = engine.advance(board, (step - 1) * config.timeStepSeconds)
             frames.add(PredictionFrame(step * config.timeStepSeconds, board))
             if (atRest(board) && !engine.needsSeparation(board)) break
         }
         val reason = if (atRest(board)) PredictionTermination.REST else PredictionTermination.TIME_LIMIT
+        checkpoint()
         return SimulationResult(ShotPrediction(shot, frames, reason), timeline.events, timeline.captures)
     }
 
