@@ -13,6 +13,7 @@ package io.github.carrombot.core.physics
  * [maxCollisionIterations] bounds pair scans/advancements per fixed step, including separation.
  * Defaults are uncalibrated equal masses and elastic contacts. Budget exhaustion, arithmetic
  * that cannot be represented, or a clock unable to advance throws rather than truncates.
+ * Acceleration-driven sustained contact at zero normal speed is unsupported and also throws.
  */
 public data class PhysicsConfig(
     public val timeStepSeconds: Double,

@@ -30,6 +30,15 @@ Repeated same-time scans propagate chains and catch correction-induced contacts.
 This sequential simultaneous-contact convention is deterministic, but is not a
 global constraint solve and does not assert a unique real-world simultaneous outcome.
 
+Touching pairs within contactTolerance with exactly zero relative normal velocity
+can be driven together by drag. These require sustained contact forces, not a
+delayed impact impulse. At each segment start, the solver examines the first nonzero
+higher-order term of squared separation when its first derivative is zero. If it
+decreases immediately, simulation throws IllegalArgumentException with
+`Acceleration-driven sustained contact is unsupported`. It does not skip the
+time-zero root and return an end-of-step penetration correction as a successful
+trajectory. Constant separation and outward-curving tangency remain supported.
+
 ## Impulses and separation
 
 PhysicsConfig supplies a common disc mass, striker mass and normal restitution in

@@ -22,7 +22,10 @@ internal class SweptContact(
         var result = horizon
         for ((start, end) in boundaries.zipWithNext()) {
             val duration = end - start
-            val coefficients = coefficients(at(a, start), at(b, start), duration)
+            val segmentA = at(a, start)
+            val segmentB = at(b, start)
+            val coefficients = coefficients(segmentA, segmentB, duration)
+            rejectSustainedContact(segmentA, segmentB, coefficients)
             val derivative = derivative(coefficients)
             val root = roots(coefficients).firstOrNull { it > 0.0 && evaluate(derivative, it) < 0.0 }
             if (root != null) {
@@ -31,6 +34,22 @@ internal class SweptContact(
             }
         }
         return result
+    }
+
+    private fun rejectSustainedContact(
+        a: ContactBody,
+        b: ContactBody,
+        coefficients: List<Double>,
+    ) {
+        val distance = hypot(b.circle.center.x - a.circle.center.x, b.circle.center.y - a.circle.center.y)
+        val touching = distance - a.circle.radius - b.circle.radius <= config.contactTolerance
+        val stationaryNormal = coefficients[1] == 0.0
+        // With zero first derivative, the first nonzero higher term determines whether
+        // separation decreases immediately. An impulse cannot support this sustained load.
+        val leadingTerm = coefficients.drop(2).firstOrNull { it != 0.0 } ?: 0.0
+        require(!(touching && stationaryNormal && leadingTerm < 0.0)) {
+            "Acceleration-driven sustained contact is unsupported"
+        }
     }
 
     private fun stopTime(body: ContactBody): Double =

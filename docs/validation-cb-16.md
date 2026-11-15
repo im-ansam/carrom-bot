@@ -64,3 +64,28 @@ spin or empirically calibrated game accuracy. Hosted JDK-21 CI is pending PR cre
 The pre-existing gradlew.bat normalization difference is excluded: raw hash matches
 HEAD (03754c4c3d9206f5c9ef69e41990dfe26a05251e). Full diff/staged paths and whitespace
 are reviewed before commit; SDK, cache and sensitive data are excluded.
+
+## PR #15 review follow-up
+
+Addressed the P2 time-zero drag-contact finding. The reported touching radius-5
+pair at (100,100)/(110,100), velocities (1,1)/(1,0), drag 10 now fails explicitly
+with `Acceleration-driven sustained contact is unsupported` at both 0.1 and 0.0001
+second steps. No end-of-step delayed-impact trajectory escapes. A separate control
+checks constant separation and outward-curving tangency remain supported. Public
+configuration KDoc and ADR 0006 document the sustained-contact limitation.
+
+- Red `gradlew.bat -PjvmOnly :core:physics:test --console=plain`: 39 tests, one
+  failure because the reported input returned successfully instead of throwing.
+- Green `gradlew.bat -PjvmOnly :core:physics:test ktlintFormat --console=plain`:
+  passed after the guard. Standalone `gradlew.bat -PjvmOnly ktlintFormat --console=plain`
+  also passed after adding control coverage.
+- `gradlew.bat projects assembleDebug test check lint --console=plain`: passed,
+  195 tasks, 23 executed and 172 up-to-date, including Android lint, ktlint and Detekt.
+- `gradlew.bat -PjvmOnly projects test check --console=plain`, ANDROID_HOME unset:
+  passed, 14 tasks, 3 executed and 11 up-to-date; tests up-to-date from the full run.
+
+Final XML now reports 40 physics, 17 model and 1 app JVM tests, zero failures/errors/skips.
+NO-SOURCE/SKIPPED tasks, existing deprecation warnings and no-device-test limits remain
+as above. The wrapper artifact remains excluded. The review fetch helper initially
+failed decoding GitHub punctuation under Windows cp1252; rerunning with PYTHONUTF8=1
+succeeded. No helper/skill files were changed.

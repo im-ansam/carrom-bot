@@ -17,6 +17,41 @@ import java.util.Random
 import kotlin.math.hypot
 
 class CollisionSimulationTest {
+    @Test
+    fun `touching pairs with constant separation or outward curvature remain supported`() {
+        val a = ContactBody("a", Circle(Vec2(100.0, 100.0), 5.0), Vec2(1.0, 1.0), 1.0)
+        val b = ContactBody("b", Circle(Vec2(110.0, 100.0), 5.0), Vec2(1.0, 1.0), 1.0)
+        val sweep = SweptContact(PhysicsConfig(0.1, 1, deceleration = 10.0))
+        assertEquals(0.1, sweep.time(a, b, 0.1), 0.0)
+        assertEquals(0.1, sweep.time(a.copy(velocity = Vec2(1.0, 0.0)), b, 0.1), 0.0)
+    }
+
+    @Test
+    fun `touching bodies driven together by drag fail instead of delaying impact`() {
+        val initial = board()
+        val input =
+            BoardState(
+                initial.bounds,
+                emptyList(),
+                listOf(
+                    initial.discs.single().copy(
+                        circle = Circle(Vec2(110.0, 100.0), 5.0),
+                        velocity = Vec2(1.0, 0.0),
+                    ),
+                ),
+                initial.striker.copy(velocity = Vec2(1.0, 1.0)),
+            )
+        for (dt in listOf(0.1, 0.0001)) {
+            val error =
+                assertThrows(IllegalArgumentException::class.java) {
+                    run(input, PhysicsConfig(dt, 1, deceleration = 10.0))
+                }
+            assertEquals("Acceleration-driven sustained contact is unsupported", error.message)
+        }
+        assertEquals(Vec2(100.0, 100.0), input.striker.circle.center)
+        assertEquals(Vec2(1.0, 0.0), input.discs.single().velocity)
+    }
+
     private fun run(
         initial: BoardState,
         config: PhysicsConfig = PhysicsConfig(0.5, 1),
