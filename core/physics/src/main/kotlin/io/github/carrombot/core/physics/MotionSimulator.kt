@@ -10,9 +10,10 @@ import io.github.carrombot.core.model.Vec2
 import java.util.Collections
 
 /**
- * Deterministic free motion: p(next) = p + v * dt, v(next) = v, in mm and mm/s.
- * Traverses discs in input order then the striker. No randomness, forces, collisions,
- * pocketing or power mapping is applied. Exact zero velocity defines rest.
+ * Deterministic motion with optional constant deceleration, in mm and mm/s.
+ * Zero configured deceleration retains p(next) = p + v * dt, v(next) = v.
+ * Traverses discs in input order then the striker. No randomness, collisions or
+ * pocketing is applied. Exact zero velocity defines rest.
  *
  * Each call owns its trajectory. Invalid/nonfinite arithmetic or leaving board bounds
  * throws [IllegalArgumentException]; no clamped or partial successful trajectory escapes.
@@ -21,6 +22,8 @@ import java.util.Collections
 public class MotionSimulator(
     public val config: PhysicsConfig,
 ) {
+    private val friction: FrictionModel? = config.deceleration.takeIf { it > 0.0 }?.let(::FrictionModel)
+
     /** Includes the initial snapshot; stops at rest or the configured time cap. */
     public fun simulate(boardState: BoardState): List<SimulationState> {
         val states = ArrayList<SimulationState>()
@@ -55,21 +58,36 @@ public class MotionSimulator(
         board: BoardState,
         step: Int,
     ): SimulationState {
-        val discs = board.discs.map { it.copy(circle = move(it.circle, it.velocity)) }
-        val striker = board.striker.copy(circle = move(board.striker.circle, board.striker.velocity))
+        val discs =
+            board.discs.map {
+                val motion = motion(it.velocity)
+                it.copy(circle = move(it.circle, motion.displacement), velocity = motion.velocity)
+            }
+        val motion = motion(board.striker.velocity)
+        val striker =
+            board.striker.copy(
+                circle = move(board.striker.circle, motion.displacement),
+                velocity = motion.velocity,
+            )
         return SimulationState(BoardState(board.bounds, board.pockets, discs, striker), step * config.timeStepSeconds)
     }
 
     private fun move(
         circle: Circle,
-        velocity: Vec2,
+        displacement: Vec2,
     ): Circle =
         circle.copy(
             center =
                 Vec2(
-                    circle.center.x + velocity.x * config.timeStepSeconds,
-                    circle.center.y + velocity.y * config.timeStepSeconds,
+                    circle.center.x + displacement.x,
+                    circle.center.y + displacement.y,
                 ),
+        )
+
+    private fun motion(velocity: Vec2): FrictionStep =
+        friction?.step(velocity, config.timeStepSeconds) ?: FrictionStep(
+            Vec2(velocity.x * config.timeStepSeconds, velocity.y * config.timeStepSeconds),
+            velocity,
         )
 
     private fun isAtRest(board: BoardState): Boolean =
