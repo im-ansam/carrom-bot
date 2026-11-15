@@ -13,33 +13,45 @@ import kotlin.math.hypot
  */
 internal class CollisionEngine(
     private val config: PhysicsConfig,
+    private val timeline: ShotTimeline? = null,
 ) {
     private val friction = config.deceleration.takeIf { it > 0.0 }?.let(::FrictionModel)
     private val resolver = CollisionResolver(config)
     private val sweep = SweptContact(config)
     private val rebounds = ReboundEngine(config)
+    private val pockets = PocketEngine(config)
+    private var eventTime = 0.0
 
     fun needsSeparation(board: BoardState): Boolean {
         val bodies = bodies(board)
         return bodies.indices.any { i -> (i + 1 until bodies.size).any { j -> gap(bodies[i], bodies[j]) < 0.0 } }
     }
 
-    fun advance(board: BoardState): BoardState {
+    fun advance(
+        board: BoardState,
+        startSeconds: Double = 0.0,
+    ): BoardState {
         val bodies = bodies(board).toMutableList()
         var remaining = config.timeStepSeconds
         var iterations = 0
         while (true) {
+            eventTime = startSeconds + (config.timeStepSeconds - remaining)
             require(iterations++ < config.maxCollisionIterations) { "Collision iteration budget exhausted" }
+            capture(bodies, board)
             var changed = resolveContacts(bodies)
             for (i in bodies.indices) {
-                val after = rebounds.resolve(bodies[i], board.bounds)
+                val after =
+                    rebounds.resolve(bodies[i], board.bounds) { wall ->
+                        record(ShotEventType.WALL_CONTACT, bodies[i].id, wall.name)
+                    }
                 changed = changed || after != bodies[i]
                 bodies[i] = after
             }
             if (!changed) {
                 if (remaining == 0.0) break
-                val wallInterval = bodies.minOf { rebounds.time(it, board.bounds, remaining) }
-                val interval = safeInterval(bodies, wallInterval)
+                val wallInterval = bodies.minOfOrNull { rebounds.time(it, board.bounds, remaining) } ?: remaining
+                val pocketInterval = pocketInterval(bodies, board, wallInterval)
+                val interval = safeInterval(bodies, pocketInterval)
                 require(interval > 0.0 && remaining - interval < remaining) { "Collision clock cannot advance" }
                 for (i in bodies.indices) bodies[i] = move(bodies[i], interval)
                 remaining = (remaining - interval).coerceAtLeast(0.0)
@@ -47,11 +59,11 @@ internal class CollisionEngine(
         }
         val byId = bodies.associateBy { it.id }
         val discs =
-            board.discs.map {
+            board.discs.filter { it.id in byId }.map {
                 val body = byId.getValue(it.id)
                 it.copy(circle = body.circle, velocity = body.velocity)
             }
-        val striker = byId.getValue(board.striker.id)
+        val striker = requireNotNull(byId[board.striker.id] ?: timeline?.capturedStriker) { "Missing striker state" }
         return BoardState(
             board.bounds,
             board.pockets,
@@ -66,6 +78,7 @@ internal class CollisionEngine(
             for (j in i + 1 until bodies.size) {
                 if (gap(bodies[i], bodies[j]) <= config.contactTolerance) {
                     val (a, b) = resolver.resolve(bodies[i], bodies[j])
+                    recordBodyImpact(bodies[i], bodies[j], a, b)
                     changed = changed || a != bodies[i] || b != bodies[j]
                     bodies[i] = a
                     bodies[j] = b
@@ -86,6 +99,17 @@ internal class CollisionEngine(
             }
         }
         return interval
+    }
+
+    private fun recordBodyImpact(
+        beforeA: ContactBody,
+        beforeB: ContactBody,
+        a: ContactBody,
+        b: ContactBody,
+    ) {
+        if (a.velocity != beforeA.velocity || b.velocity != beforeB.velocity) {
+            record(ShotEventType.BODY_CONTACT, a.id, b.id)
+        }
     }
 
     private fun move(
@@ -110,19 +134,63 @@ internal class CollisionEngine(
         )
     }
 
-    private fun gap(
-        a: ContactBody,
-        b: ContactBody,
-    ): Double {
-        val distance = hypot(b.circle.center.x - a.circle.center.x, b.circle.center.y - a.circle.center.y)
-        val value = distance - a.circle.radius - b.circle.radius
-        require(value.isFinite()) { "Unrepresentable pair geometry" }
-        return value
-    }
-
     private fun bodies(board: BoardState): List<ContactBody> =
         (
             board.discs.map { ContactBody(it.id, it.circle, it.velocity, config.discMass) } +
                 ContactBody(board.striker.id, board.striker.circle, board.striker.velocity, config.strikerMass)
-        ).sortedBy { it.id }
+        ).filter { timeline?.removed?.contains(it.id) != true }.sortedBy { it.id }
+
+    private fun record(
+        type: ShotEventType,
+        bodyId: String,
+        target: String,
+    ) {
+        timeline?.events?.add(ShotEvent(eventTime, type, bodyId, target))
+    }
+
+    private fun pocketInterval(
+        bodies: List<ContactBody>,
+        board: BoardState,
+        horizon: Double,
+    ): Double {
+        var interval = horizon
+        if (timeline != null) {
+            for (body in bodies) {
+                for (pocket in board.pockets) interval = minOf(interval, pockets.time(body, pocket, horizon))
+            }
+        }
+        return interval
+    }
+
+    private fun capture(
+        bodies: MutableList<ContactBody>,
+        board: BoardState,
+    ) {
+        val sink = timeline ?: return
+        val sortedPockets = board.pockets.sortedBy { it.id }
+        val iterator = bodies.listIterator()
+        while (iterator.hasNext()) {
+            val body = iterator.next()
+            val pocket = sortedPockets.firstOrNull { pockets.contains(body, it) }
+            if (pocket != null) {
+                val frozen = rebounds.resolve(body.copy(velocity = Vec2(0.0, 0.0)), board.bounds)
+                sink.removed.add(body.id)
+                if (body.id == board.striker.id) sink.capturedStriker = frozen
+                val kind = board.discs.find { it.id == body.id }?.kind
+                sink.captures.add(PocketCapture(eventTime, body.id, pocket.id, kind))
+                record(ShotEventType.CAPTURE, body.id, pocket.id)
+                iterator.remove()
+            }
+        }
+    }
+}
+
+private fun gap(
+    a: ContactBody,
+    b: ContactBody,
+): Double {
+    val distance = hypot(b.circle.center.x - a.circle.center.x, b.circle.center.y - a.circle.center.y)
+    val value = distance - a.circle.radius - b.circle.radius
+    require(value.isFinite()) { "Unrepresentable pair geometry" }
+    return value
 }
