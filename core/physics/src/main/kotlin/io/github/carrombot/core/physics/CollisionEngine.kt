@@ -7,8 +7,9 @@ import kotlin.math.hypot
 /**
  * Swept circles along piecewise quadratic drag trajectories.
  * Contact distance is approximate within config tolerance (mm).
- * Stable ID pair order defines sequential
- * simultaneous impacts. Exhausting the deterministic budget fails explicitly.
+ * Stable ID pair order, then stable body ID/wall order, defines sequential
+ * simultaneous impacts. Repeated scans settle chains before advancing.
+ * Exhausting the shared deterministic body/wall budget fails explicitly.
  */
 internal class CollisionEngine(
     private val config: PhysicsConfig,
@@ -16,6 +17,7 @@ internal class CollisionEngine(
     private val friction = config.deceleration.takeIf { it > 0.0 }?.let(::FrictionModel)
     private val resolver = CollisionResolver(config)
     private val sweep = SweptContact(config)
+    private val rebounds = ReboundEngine(config)
 
     fun needsSeparation(board: BoardState): Boolean {
         val bodies = bodies(board)
@@ -28,10 +30,16 @@ internal class CollisionEngine(
         var iterations = 0
         while (true) {
             require(iterations++ < config.maxCollisionIterations) { "Collision iteration budget exhausted" }
-            val changed = resolveContacts(bodies)
+            var changed = resolveContacts(bodies)
+            for (i in bodies.indices) {
+                val after = rebounds.resolve(bodies[i], board.bounds)
+                changed = changed || after != bodies[i]
+                bodies[i] = after
+            }
             if (!changed) {
                 if (remaining == 0.0) break
-                val interval = safeInterval(bodies, remaining)
+                val wallInterval = bodies.minOf { rebounds.time(it, board.bounds, remaining) }
+                val interval = safeInterval(bodies, wallInterval)
                 require(interval > 0.0 && remaining - interval < remaining) { "Collision clock cannot advance" }
                 for (i in bodies.indices) bodies[i] = move(bodies[i], interval)
                 remaining = (remaining - interval).coerceAtLeast(0.0)
