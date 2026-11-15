@@ -15,7 +15,7 @@ adds consent-based screen capture in a foreground service.
 | core:model | JVM | none | Shared state, coordinates and permission setup contracts |
 | core:physics | JVM | model | Fixed-step shots, drag, power, swept contacts, banks and pocket capture |
 | core:planner | JVM | model, physics | Future shot planning |
-| core:vision | Android library | model | OpenCV board boundary, normalization and pixel/mm transform |
+| core:vision | Android library | model | OpenCV board geometry, normalization and calibrated object recognition |
 | core:capture | Android library | model | Bounded MediaProjection frames, resize and resource ownership |
 | core:overlay | Android library | model | Future aiming overlay |
 
@@ -39,6 +39,13 @@ near-square boundary, returns an immutable homography with geometric confidence,
 and can normalize borrowed RGBA frames. Missing/ambiguous geometry fails explicitly.
 Physical bounds must be supplied by the caller. Synthetic fixtures establish mechanics,
 not actual game accuracy; see [validation](docs/validation-cb-21.md).
+
+[CB-22 object recognition](docs/adr/0012-object-recognition.md) accepts rectified frames
+and caller-calibrated HSV/size profiles for pockets, discs, striker and obstacles.
+It returns owned typed circles in board mm with class-conditional fit confidence;
+clipped, merged and ambiguous candidates are conservatively rejected. It does not
+infer IDs, missing objects or a complete board state. Original synthetic fixtures
+measure mechanics only; see [validation](docs/validation-cb-22.md).
 
 Shared types live in `io.github.carrombot.core.model`. Board geometry uses millimetres,
 top-left origin, +X right and +Y down; velocities use mm/s and prediction times use

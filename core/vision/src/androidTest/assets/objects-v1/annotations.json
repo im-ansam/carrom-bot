@@ -1,0 +1,197 @@
+[
+  {
+    "name": "complete",
+    "size": 401,
+    "objects": [
+      {
+        "kind": "POCKET",
+        "x": 25,
+        "y": 25,
+        "radius": 14
+      },
+      {
+        "kind": "POCKET",
+        "x": 375,
+        "y": 25,
+        "radius": 14
+      },
+      {
+        "kind": "POCKET",
+        "x": 25,
+        "y": 375,
+        "radius": 14
+      },
+      {
+        "kind": "POCKET",
+        "x": 375,
+        "y": 375,
+        "radius": 14
+      },
+      {
+        "kind": "BLACK_DISC",
+        "x": 100,
+        "y": 120,
+        "radius": 18
+      },
+      {
+        "kind": "WHITE_DISC",
+        "x": 200,
+        "y": 100,
+        "radius": 18
+      },
+      {
+        "kind": "QUEEN",
+        "x": 280,
+        "y": 180,
+        "radius": 18
+      },
+      {
+        "kind": "STRIKER",
+        "x": 200,
+        "y": 310,
+        "radius": 26
+      },
+      {
+        "kind": "OBSTACLE",
+        "x": 90,
+        "y": 260,
+        "radius": 20
+      }
+    ]
+  },
+  {
+    "name": "scaled",
+    "size": 601,
+    "objects": [
+      {
+        "kind": "POCKET",
+        "x": 25,
+        "y": 25,
+        "radius": 14
+      },
+      {
+        "kind": "POCKET",
+        "x": 375,
+        "y": 25,
+        "radius": 14
+      },
+      {
+        "kind": "POCKET",
+        "x": 25,
+        "y": 375,
+        "radius": 14
+      },
+      {
+        "kind": "POCKET",
+        "x": 375,
+        "y": 375,
+        "radius": 14
+      },
+      {
+        "kind": "BLACK_DISC",
+        "x": 100,
+        "y": 120,
+        "radius": 18
+      },
+      {
+        "kind": "WHITE_DISC",
+        "x": 200,
+        "y": 100,
+        "radius": 18
+      },
+      {
+        "kind": "QUEEN",
+        "x": 280,
+        "y": 180,
+        "radius": 18
+      },
+      {
+        "kind": "STRIKER",
+        "x": 200,
+        "y": 310,
+        "radius": 26
+      },
+      {
+        "kind": "OBSTACLE",
+        "x": 90,
+        "y": 260,
+        "radius": 20
+      }
+    ]
+  },
+  {
+    "name": "noisy",
+    "size": 401,
+    "objects": [
+      {
+        "kind": "POCKET",
+        "x": 25,
+        "y": 25,
+        "radius": 14
+      },
+      {
+        "kind": "POCKET",
+        "x": 375,
+        "y": 25,
+        "radius": 14
+      },
+      {
+        "kind": "POCKET",
+        "x": 25,
+        "y": 375,
+        "radius": 14
+      },
+      {
+        "kind": "POCKET",
+        "x": 375,
+        "y": 375,
+        "radius": 14
+      },
+      {
+        "kind": "BLACK_DISC",
+        "x": 100,
+        "y": 120,
+        "radius": 18
+      },
+      {
+        "kind": "WHITE_DISC",
+        "x": 200,
+        "y": 100,
+        "radius": 18
+      },
+      {
+        "kind": "QUEEN",
+        "x": 280,
+        "y": 180,
+        "radius": 18
+      },
+      {
+        "kind": "STRIKER",
+        "x": 200,
+        "y": 310,
+        "radius": 26
+      },
+      {
+        "kind": "OBSTACLE",
+        "x": 90,
+        "y": 260,
+        "radius": 20
+      }
+    ]
+  },
+  {
+    "name": "occluded",
+    "size": 401,
+    "objects": []
+  },
+  {
+    "name": "false-positives",
+    "size": 401,
+    "objects": []
+  },
+  {
+    "name": "empty",
+    "size": 401,
+    "objects": []
+  }
+]
