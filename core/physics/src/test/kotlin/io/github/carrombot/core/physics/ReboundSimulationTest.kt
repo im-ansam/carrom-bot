@@ -18,6 +18,67 @@ import kotlin.math.abs
 
 class ReboundSimulationTest {
     @Test
+    fun `fractional corner corrections round inward on every wall`() {
+        val bounds = BoardBounds(Vec2(-100.0, -100.0), Vec2(100.0, 100.0))
+        val engine = ReboundEngine(PhysicsConfig(1.0, 1))
+        for (x in listOf(-1.0, 1.0)) {
+            for (y in listOf(-1.0, 1.0)) {
+                val body = ContactBody("s", Circle(Vec2(x * 89.9, y * 89.9), 10.1), Vec2(x, y), 1.0)
+                val after = engine.resolve(body, bounds)
+                assertTrue(bounds.contains(after.circle))
+                assertEquals(Vec2(-x, -y), after.velocity)
+                assertEquals(x * 89.9, after.circle.center.x, 1e-12)
+                assertEquals(y * 89.9, after.circle.center.y, 1e-12)
+                assertEquals(after, engine.resolve(after, bounds))
+            }
+        }
+        val outside = ContactBody("s", Circle(Vec2(89.900001, 0.0), 10.1), Vec2(1.0, 0.0), 1.0)
+        assertThrows(IllegalArgumentException::class.java) { engine.resolve(outside, bounds) }
+    }
+
+    @Test
+    fun `fractional radius rebounds round inside strict board bounds`() {
+        val initial = board(Vec2(50.0, 50.0), Vec2(50.0, 0.0))
+        for (velocity in listOf(Vec2(50.0, 0.0), Vec2(-50.0, 0.0), Vec2(0.0, 50.0), Vec2(0.0, -50.0))) {
+            val input =
+                BoardState(
+                    initial.bounds,
+                    emptyList(),
+                    emptyList(),
+                    initial.striker.copy(circle = Circle(Vec2(50.0, 50.0), 10.1), velocity = velocity),
+                )
+            val final = run(input)
+            assertTrue(final.bounds.contains(final.striker.circle))
+            assertEquals(velocity.x * -1.0, final.striker.velocity.x, 1e-10)
+            assertEquals(velocity.y * -1.0, final.striker.velocity.y, 1e-10)
+            assertEquals(
+                if (velocity.x > 0.0) {
+                    79.8
+                } else if (velocity.x < 0.0) {
+                    20.2
+                } else {
+                    50.0
+                },
+                final.striker.circle.center.x,
+                1e-10,
+            )
+            assertEquals(
+                if (velocity.y > 0.0) {
+                    79.8
+                } else if (velocity.y < 0.0) {
+                    20.2
+                } else {
+                    50.0
+                },
+                final.striker.circle.center.y,
+                1e-10,
+            )
+            assertEquals(final, run(input))
+            assertEquals(Vec2(50.0, 50.0), input.striker.circle.center)
+        }
+    }
+
+    @Test
     fun `all walls reflect straight diagonal and oblique approaches`() {
         for (velocity in listOf(Vec2(40.0, 0.0), Vec2(40.0, 40.0), Vec2(40.0, 10.0))) {
             for (sign in listOf(-1.0, 1.0)) {

@@ -42,16 +42,28 @@ internal class ReboundEngine(
             val gap = wall.gap(result, bounds)
             require(gap >= -config.contactTolerance) { "Body correction exceeds wall tolerance" }
             if (gap <= config.contactTolerance) {
-                if (gap < 0.0) {
-                    val center = offset(result.circle.center, wall.normal, gap)
-                    result = result.copy(circle = result.circle.copy(center = center))
-                }
+                if (gap < 0.0) result = correctPenetration(result, wall, bounds, gap)
                 val normalSpeed = wall.outward(result.velocity)
                 if (normalSpeed > 0.0) result = result.copy(velocity = reflect(result.velocity, wall, normalSpeed))
             }
         }
         require(bounds.contains(result.circle)) { "Wall contact cannot be represented inside bounds" }
         return result
+    }
+
+    private fun correctPenetration(
+        body: ContactBody,
+        wall: WallCollision,
+        bounds: BoardBounds,
+        gap: Double,
+    ): ContactBody {
+        val center = offset(body.circle.center, wall.normal, gap)
+        val corrected = body.copy(circle = body.circle.copy(center = center))
+        return if (wall.gap(corrected, bounds) < 0.0) {
+            corrected.copy(circle = corrected.circle.copy(center = wall.roundInward(center)))
+        } else {
+            corrected
+        }
     }
 
     private fun reflect(

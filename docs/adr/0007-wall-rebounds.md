@@ -43,7 +43,10 @@ contactTolerance remains a distance in mm (default 1e-8), shared with body conta
 Approaching walls within that distance resolve immediately; this may reflect up to
 that distance early, including grouping near-corner contacts. Only a negative wall
 clearance within tolerance is moved inward by its penetration amount to repair
-floating-point event rounding. This does not clamp arbitrary out-of-bounds motion.
+floating-point event rounding. If that addition rounds outward, the affected axis
+moves one representable coordinate inward (nextUp for left/top, nextDown for
+right/bottom), followed by the strict containment check. This is bounded work and
+does not clamp arbitrary out-of-bounds motion.
 Larger penetration, including body separation that pushes a body beyond tolerance,
 fails explicitly. Strict BoardState containment remains unchanged and is checked
 after each wall scan; an unrepresentable correction fails rather than weakening it.

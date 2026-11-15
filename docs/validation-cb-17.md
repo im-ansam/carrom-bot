@@ -53,3 +53,34 @@ diff and staged paths are reviewed before committing; caches/SDK/logs are ignore
 Finite precision, sequential simultaneous impulses, unsupported acceleration-driven
 sustained body contact, bounded-budget exhaustion and uncalibrated coefficients
 remain explicit limitations. Hosted JDK-21 CI is pending PR creation.
+
+## PR #16 review follow-up
+
+Addressed the fractional-radius wall correction finding. The reported radius-10.1
+striker at (50,50), velocity (50,0), on a 100 by 100 board previously failed strict
+containment because adding the tiny penetration rounded back to the same coordinate.
+When the correction still has negative clearance, the affected coordinate now moves
+one representable value inward. Strict containment and the original penetration
+tolerance remain enforced; there is no unbounded correction loop.
+
+Two regression tests cover the exact reproduction and all four approach directions,
+fractional corners with a translated origin, repeatability, unchanged input,
+idempotent correction and rejection of penetration beyond tolerance.
+
+- Red `gradlew.bat -PjvmOnly :core:physics:test --console=plain`: 51 tests, one
+  expected failure reproducing the review finding before the fix.
+- Green `gradlew.bat -PjvmOnly :core:physics:test ktlintFormat --console=plain`:
+  passed after inward rounding. Standalone formatting also passed after extending
+  corner coverage and extracting the correction helper.
+- First `gradlew.bat projects assembleDebug test check lint --console=plain`:
+  tests, assembly and Android lint passed; Detekt failed on nested block depth.
+  Extracted correctPenetration without suppressions.
+- Final `gradlew.bat projects assembleDebug test check lint --console=plain`:
+  passed, 195 tasks: 23 executed, 172 up-to-date, including ktlint and Detekt.
+- `gradlew.bat -PjvmOnly projects test check --console=plain`, Android SDK
+  variables unset: passed, 14 tasks: 3 executed, 11 up-to-date; tests up-to-date
+  from the full build.
+
+Final XML: 52 physics, 17 model and one app JVM tests, zero failures/errors/skips.
+NO-SOURCE/SKIPPED tasks, existing Gradle warnings and no-device-test limits remain
+as above. Wrapper raw hash remains unchanged and its normalization artifact excluded.

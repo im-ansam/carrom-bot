@@ -29,4 +29,13 @@ internal enum class WallCollision(
     }
 
     fun outward(vector: Vec2): Double = vector.x * normal.x + vector.y * normal.y
+
+    /** One representable coordinate toward the interior when subtraction correction rounds outward. */
+    fun roundInward(center: Vec2): Vec2 =
+        when (this) {
+            LEFT -> Vec2(Math.nextUp(center.x), center.y)
+            RIGHT -> Vec2(Math.nextDown(center.x), center.y)
+            TOP -> Vec2(center.x, Math.nextUp(center.y))
+            BOTTOM -> Vec2(center.x, Math.nextDown(center.y))
+        }
 }
