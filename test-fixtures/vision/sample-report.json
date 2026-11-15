@@ -1,0 +1,131 @@
+{
+  "boards": {
+    "calibration": [
+      {
+        "bottom_mm_per_pixel": 2.093019328224531,
+        "id": "board/diamond",
+        "left_mm_per_pixel": 2.093019328224531,
+        "right_mm_per_pixel": 2.093019328224531,
+        "top_mm_per_pixel": 2.093019328224531
+      },
+      {
+        "bottom_mm_per_pixel": 2.08882090710546,
+        "id": "board/diamond-jitter",
+        "left_mm_per_pixel": 2.093036072312181,
+        "right_mm_per_pixel": 2.093019328224531,
+        "top_mm_per_pixel": 2.0971926328019443
+      },
+      {
+        "bottom_mm_per_pixel": 2.093019328224531,
+        "id": "board/diamond-noisy",
+        "left_mm_per_pixel": 2.093019328224531,
+        "right_mm_per_pixel": 2.093019328224531,
+        "top_mm_per_pixel": 2.093019328224531
+      },
+      {
+        "bottom_mm_per_pixel": 1.85,
+        "id": "board/noisy",
+        "left_mm_per_pixel": 1.85,
+        "right_mm_per_pixel": 1.85,
+        "top_mm_per_pixel": 1.85
+      },
+      {
+        "bottom_mm_per_pixel": 1.684072659965925,
+        "id": "board/perspective",
+        "left_mm_per_pixel": 1.8820318765834088,
+        "right_mm_per_pixel": 1.9468157332647351,
+        "top_mm_per_pixel": 2.048455169725586
+      },
+      {
+        "bottom_mm_per_pixel": 1.8569767689454337,
+        "id": "board/rotated",
+        "left_mm_per_pixel": 1.8569767689454337,
+        "right_mm_per_pixel": 1.8569767689454337,
+        "top_mm_per_pixel": 1.8569767689454337
+      },
+      {
+        "bottom_mm_per_pixel": 3.0833333333333335,
+        "id": "board/scaled",
+        "left_mm_per_pixel": 3.0833333333333335,
+        "right_mm_per_pixel": 3.0833333333333335,
+        "top_mm_per_pixel": 3.0833333333333335
+      },
+      {
+        "bottom_mm_per_pixel": 1.85,
+        "id": "board/square",
+        "left_mm_per_pixel": 1.85,
+        "right_mm_per_pixel": 1.85,
+        "top_mm_per_pixel": 1.85
+      }
+    ],
+    "corner_max_px": 2.23606797749979,
+    "corner_mean_px": 0.4578212981210277,
+    "fn": 0,
+    "fp": 0,
+    "tp": 8
+  },
+  "classes": {
+    "BLACK_DISC": {
+      "center_mean_mm": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "radius_mean_mm": 8.816189236071637e-05,
+      "recall": 1.0,
+      "tp": 3
+    },
+    "OBSTACLE": {
+      "center_mean_mm": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "radius_mean_mm": 8.816189236071637e-05,
+      "recall": 1.0,
+      "tp": 3
+    },
+    "POCKET": {
+      "center_mean_mm": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "radius_mean_mm": 0.002690845065646504,
+      "recall": 1.0,
+      "tp": 12
+    },
+    "QUEEN": {
+      "center_mean_mm": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "radius_mean_mm": 8.816189236071637e-05,
+      "recall": 1.0,
+      "tp": 3
+    },
+    "STRIKER": {
+      "center_mean_mm": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "radius_mean_mm": 8.816189236071637e-05,
+      "recall": 1.0,
+      "tp": 3
+    },
+    "WHITE_DISC": {
+      "center_mean_mm": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "radius_mean_mm": 8.816189236071637e-05,
+      "recall": 1.0,
+      "tp": 3
+    }
+  },
+  "dataset": "synthetic-vision-v1",
+  "failed_frames": 4,
+  "gates": {
+    "center_mm": 2.0,
+    "corner_px": 5.0,
+    "radius_mm": 2.0
+  },
+  "version": 1
+}

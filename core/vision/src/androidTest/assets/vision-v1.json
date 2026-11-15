@@ -1,0 +1,493 @@
+{
+  "version": 1,
+  "dataset": "synthetic-vision-v1",
+  "frames": [
+    {
+      "id": "board/square",
+      "mode": "board",
+      "asset": "board-v1/square.png",
+      "corners": [
+        [
+          100,
+          150
+        ],
+        [
+          500,
+          150
+        ],
+        [
+          500,
+          550
+        ],
+        [
+          100,
+          550
+        ]
+      ],
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "a7bc85180d428d4701a455606da0b6baa3f4dab56870039d14caa08166c1d239"
+    },
+    {
+      "id": "board/rotated",
+      "mode": "board",
+      "asset": "board-v1/rotated.png",
+      "corners": [
+        [
+          170,
+          100
+        ],
+        [
+          550,
+          220
+        ],
+        [
+          430,
+          600
+        ],
+        [
+          50,
+          480
+        ]
+      ],
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "8d20dc70ca8d03b26fd84c57e10c53562e5906b43d94f811ee6c9ad644e17e36"
+    },
+    {
+      "id": "board/diamond",
+      "mode": "board",
+      "asset": "board-v1/diamond.png",
+      "corners": [
+        [
+          300,
+          100
+        ],
+        [
+          550,
+          350
+        ],
+        [
+          300,
+          600
+        ],
+        [
+          50,
+          350
+        ]
+      ],
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "1e2999b8da10edf2199b92f7df4cf054e8cd726b8496ff7abacf8e179d191181"
+    },
+    {
+      "id": "board/diamond-noisy",
+      "mode": "board",
+      "asset": "board-v1/diamond-noisy.png",
+      "corners": [
+        [
+          300,
+          100
+        ],
+        [
+          550,
+          350
+        ],
+        [
+          300,
+          600
+        ],
+        [
+          50,
+          350
+        ]
+      ],
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "7504afa2928e11c46af16883415c8dd2ab4fd6442903b3f9169264f6c6263a68"
+    },
+    {
+      "id": "board/diamond-jitter",
+      "mode": "board",
+      "asset": "board-v1/diamond-jitter.png",
+      "corners": [
+        [
+          301,
+          100
+        ],
+        [
+          550,
+          350
+        ],
+        [
+          300,
+          600
+        ],
+        [
+          49,
+          350
+        ]
+      ],
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "5ebbeb518e54b7f97abb045b7ddbbfe72c0d0ddda5abce92849d14493175f798"
+    },
+    {
+      "id": "board/scaled",
+      "mode": "board",
+      "asset": "board-v1/scaled.png",
+      "corners": [
+        [
+          180,
+          230
+        ],
+        [
+          420,
+          230
+        ],
+        [
+          420,
+          470
+        ],
+        [
+          180,
+          470
+        ]
+      ],
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "d24191f2f8ab5ddda7abf0f692d743b968eeb1d49f08dab6a0c245d8de7ea7e1"
+    },
+    {
+      "id": "board/perspective",
+      "mode": "board",
+      "asset": "board-v1/perspective.png",
+      "corners": [
+        [
+          130,
+          140
+        ],
+        [
+          490,
+          170
+        ],
+        [
+          520,
+          550
+        ],
+        [
+          80,
+          530
+        ]
+      ],
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "7f1b99657ce80736153067972c5c093c1d8d4f50aeded0aa546d56c27dfaad2a"
+    },
+    {
+      "id": "board/noisy",
+      "mode": "board",
+      "asset": "board-v1/noisy.png",
+      "corners": [
+        [
+          100,
+          150
+        ],
+        [
+          500,
+          150
+        ],
+        [
+          500,
+          550
+        ],
+        [
+          100,
+          550
+        ]
+      ],
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "f9454eb61d086e1a77d00a33674daab7355a20bff634e0705ceb10df3a85322d"
+    },
+    {
+      "id": "board/clipped",
+      "mode": "board",
+      "asset": "board-v1/clipped.png",
+      "corners": null,
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "a4d180ae23419227097418236a8fdd1f5ff3c85404206e89dbf45ce6e793245e"
+    },
+    {
+      "id": "board/thin",
+      "mode": "board",
+      "asset": "board-v1/thin.png",
+      "corners": null,
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "f768d63f10abbe02c0d363fc013978e85ca888ff326e06e83b2255263fbee645"
+    },
+    {
+      "id": "board/blank",
+      "mode": "board",
+      "asset": "board-v1/blank.png",
+      "corners": null,
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "bd9fcb0820694a146e57df60d5157daf5a86a6029b0a1694ec6e89aa30ac63d0"
+    },
+    {
+      "id": "board/multiple",
+      "mode": "board",
+      "asset": "board-v1/multiple.png",
+      "corners": null,
+      "width_mm": 740,
+      "height_mm": 740,
+      "sha256": "b8b1bf458d63996f3690ab6393b6291ece739643ca2c26ccff18f8982278cb8d"
+    },
+    {
+      "id": "objects/complete",
+      "mode": "objects",
+      "asset": "objects-v1/complete.png",
+      "bounds_mm": [
+        10,
+        20,
+        410,
+        420
+      ],
+      "objects": [
+        {
+          "kind": "POCKET",
+          "x": 35,
+          "y": 45,
+          "radius": 14
+        },
+        {
+          "kind": "POCKET",
+          "x": 385,
+          "y": 45,
+          "radius": 14
+        },
+        {
+          "kind": "POCKET",
+          "x": 35,
+          "y": 395,
+          "radius": 14
+        },
+        {
+          "kind": "POCKET",
+          "x": 385,
+          "y": 395,
+          "radius": 14
+        },
+        {
+          "kind": "BLACK_DISC",
+          "x": 110,
+          "y": 140,
+          "radius": 18
+        },
+        {
+          "kind": "WHITE_DISC",
+          "x": 210,
+          "y": 120,
+          "radius": 18
+        },
+        {
+          "kind": "QUEEN",
+          "x": 290,
+          "y": 200,
+          "radius": 18
+        },
+        {
+          "kind": "STRIKER",
+          "x": 210,
+          "y": 330,
+          "radius": 26
+        },
+        {
+          "kind": "OBSTACLE",
+          "x": 100,
+          "y": 280,
+          "radius": 20
+        }
+      ],
+      "sha256": "a9be85b2b40563dbf5f46aceeead3946ceec5ff48a73f955255c30c27ba0e5dc"
+    },
+    {
+      "id": "objects/scaled",
+      "mode": "objects",
+      "asset": "objects-v1/scaled.png",
+      "bounds_mm": [
+        10,
+        20,
+        410,
+        420
+      ],
+      "objects": [
+        {
+          "kind": "POCKET",
+          "x": 35,
+          "y": 45,
+          "radius": 14
+        },
+        {
+          "kind": "POCKET",
+          "x": 385,
+          "y": 45,
+          "radius": 14
+        },
+        {
+          "kind": "POCKET",
+          "x": 35,
+          "y": 395,
+          "radius": 14
+        },
+        {
+          "kind": "POCKET",
+          "x": 385,
+          "y": 395,
+          "radius": 14
+        },
+        {
+          "kind": "BLACK_DISC",
+          "x": 110,
+          "y": 140,
+          "radius": 18
+        },
+        {
+          "kind": "WHITE_DISC",
+          "x": 210,
+          "y": 120,
+          "radius": 18
+        },
+        {
+          "kind": "QUEEN",
+          "x": 290,
+          "y": 200,
+          "radius": 18
+        },
+        {
+          "kind": "STRIKER",
+          "x": 210,
+          "y": 330,
+          "radius": 26
+        },
+        {
+          "kind": "OBSTACLE",
+          "x": 100,
+          "y": 280,
+          "radius": 20
+        }
+      ],
+      "sha256": "c966fda005d4a8a05743f508f3d03563fbedd05f2f2a4877ad1d95da9db3d433"
+    },
+    {
+      "id": "objects/noisy",
+      "mode": "objects",
+      "asset": "objects-v1/noisy.png",
+      "bounds_mm": [
+        10,
+        20,
+        410,
+        420
+      ],
+      "objects": [
+        {
+          "kind": "POCKET",
+          "x": 35,
+          "y": 45,
+          "radius": 14
+        },
+        {
+          "kind": "POCKET",
+          "x": 385,
+          "y": 45,
+          "radius": 14
+        },
+        {
+          "kind": "POCKET",
+          "x": 35,
+          "y": 395,
+          "radius": 14
+        },
+        {
+          "kind": "POCKET",
+          "x": 385,
+          "y": 395,
+          "radius": 14
+        },
+        {
+          "kind": "BLACK_DISC",
+          "x": 110,
+          "y": 140,
+          "radius": 18
+        },
+        {
+          "kind": "WHITE_DISC",
+          "x": 210,
+          "y": 120,
+          "radius": 18
+        },
+        {
+          "kind": "QUEEN",
+          "x": 290,
+          "y": 200,
+          "radius": 18
+        },
+        {
+          "kind": "STRIKER",
+          "x": 210,
+          "y": 330,
+          "radius": 26
+        },
+        {
+          "kind": "OBSTACLE",
+          "x": 100,
+          "y": 280,
+          "radius": 20
+        }
+      ],
+      "sha256": "f90413e112fe8ff5332294a8a13223031f5090ae5c8ad5331081c00b1e0cf9a3"
+    },
+    {
+      "id": "objects/occluded",
+      "mode": "objects",
+      "asset": "objects-v1/occluded.png",
+      "bounds_mm": [
+        10,
+        20,
+        410,
+        420
+      ],
+      "objects": [],
+      "sha256": "a83cfb8dc6bb4790d9222e2f770769e2c948726bc80f0fbae9241a18692ea165"
+    },
+    {
+      "id": "objects/false-positives",
+      "mode": "objects",
+      "asset": "objects-v1/false-positives.png",
+      "bounds_mm": [
+        10,
+        20,
+        410,
+        420
+      ],
+      "objects": [],
+      "sha256": "6ddb6ffa0f1d411850daf14b890a6f6d6f6a508e4ec97d19f5758a0ec0375ca2"
+    },
+    {
+      "id": "objects/empty",
+      "mode": "objects",
+      "asset": "objects-v1/empty.png",
+      "bounds_mm": [
+        10,
+        20,
+        410,
+        420
+      ],
+      "objects": [],
+      "sha256": "92761b0bd791e6f31dc9fea52dd8f7509823d88388c1856fc70e4a40b7e03ff2"
+    }
+  ]
+}
