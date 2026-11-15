@@ -15,7 +15,7 @@ adds consent-based screen capture in a foreground service.
 | core:model | JVM | none | Shared state, coordinates and permission setup contracts |
 | core:physics | JVM | model | Fixed-step shots, drag, power, swept contacts, banks and pocket capture |
 | core:planner | JVM | model, physics | Future shot planning |
-| core:vision | Android library | model | OpenCV board geometry, normalization and calibrated object recognition |
+| core:vision | Android library | model | Board geometry, object recognition, tracking and stationary state qualification |
 | core:capture | Android library | model | Bounded MediaProjection frames, resize and resource ownership |
 | core:overlay | Android library | model | Future aiming overlay |
 
@@ -46,6 +46,13 @@ It returns owned typed circles in board mm with class-conditional fit confidence
 clipped, merged and ambiguous candidates are conservatively rejected. It does not
 infer IDs, missing objects or a complete board state. Original synthetic fixtures
 measure mechanics only; see [validation](docs/validation-cb-22.md).
+
+[CB-23 tracking](docs/adr/0013-object-tracking.md) retains unambiguous IDs through brief
+occlusions, smooths observed geometry and measures raw motion. Its board estimator emits
+a shared BoardState only for a fresh, stationary, confidence-qualified scene matching an
+independently confirmed caller inventory. Missing/ambiguous objects and obstacles withhold
+readiness. Capture/planner/overlay integration remains CB-35; synthetic sequence tests
+do not establish real-game accuracy. See [validation](docs/validation-cb-23.md).
 
 Shared types live in `io.github.carrombot.core.model`. Board geometry uses millimetres,
 top-left origin, +X right and +Y down; velocities use mm/s and prediction times use
