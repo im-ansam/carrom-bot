@@ -36,6 +36,7 @@ internal class ReboundEngine(
     fun resolve(
         body: ContactBody,
         bounds: BoardBounds,
+        onImpact: (WallCollision) -> Unit = {},
     ): ContactBody {
         var result = body
         for (wall in WallCollision.entries) {
@@ -44,7 +45,10 @@ internal class ReboundEngine(
             if (gap <= config.contactTolerance) {
                 if (gap < 0.0) result = correctPenetration(result, wall, bounds, gap)
                 val normalSpeed = wall.outward(result.velocity)
-                if (normalSpeed > 0.0) result = result.copy(velocity = reflect(result.velocity, wall, normalSpeed))
+                if (normalSpeed > 0.0) {
+                    result = result.copy(velocity = reflect(result.velocity, wall, normalSpeed))
+                    onImpact(wall)
+                }
             }
         }
         require(bounds.contains(result.circle)) { "Wall contact cannot be represented inside bounds" }

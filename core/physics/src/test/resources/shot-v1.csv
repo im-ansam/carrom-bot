@@ -1,0 +1,8 @@
+# v1; units mm,s; elastic equal masses; radius5; aperture20; dt2; tolerance1e-7
+# family;striker x,y,vx,vy;discs id,x,y,vx,vy separated by /;pockets id,x,y;capture ids;capture times;body impacts;wall impacts;wall tangent restitution;final striker x,y;final discs id,x,y or -
+direct;30,50,100,0;d,60,50,0,0;p,100,50;d;0.45;1;0;1;50,50;-
+disc-bank;30,50,100,40;d,60,62,0,0;p,0,76;d;1.357152330911474;1;1;0;50.7152330911474,58.286093236459;-
+striker-bank;30,50,-100,0;d,60,50,0,0;p,100,50;d;0.95;1;1;1;50,50;-
+combination;20,50,100,0;a,40,50,0,0/b,60,50,0,0;p,100,50;b;0.45;2;0;1;30,50;a,50,50
+multi-disc;20,50,100,0;a,40,50,0,0/b,60,50,0,0/c,60,80,100,0;p,100,50/q,100,80;c,b;0.25,0.45;2;0;1;30,50;a,50,50
+multi-pocket;20,80,1,0;a,60,30,100,0/b,40,60,-100,0;p,100,30/q,0,60;a,b;0.25,0.25;0;0;1;22,80;-
