@@ -17,6 +17,8 @@ import android.os.IBinder
 import android.os.Looper
 import io.github.carrombot.core.capture.CaptureEnd
 import io.github.carrombot.core.capture.MediaProjectionCapture
+import io.github.carrombot.core.overlay.OverlayController
+import io.github.carrombot.core.overlay.OverlayShowResult
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
@@ -36,6 +38,7 @@ public class CaptureService : Service() {
     private val main = Handler(Looper.getMainLooper())
     private lateinit var thread: HandlerThread
     private lateinit var worker: Handler
+    private lateinit var overlay: OverlayController
 
     // Owned exclusively by worker. Framework lifecycle calls serialize cleanup onto that looper.
     private var capture: MediaProjectionCapture? = null
@@ -48,6 +51,7 @@ public class CaptureService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        overlay = OverlayController(this, ::stopCapture)
         thread = HandlerThread("CarromBotCapture").apply { start() }
         worker = Handler(thread.looper)
     }
@@ -115,6 +119,7 @@ public class CaptureService : Service() {
                     onEnd = { reason ->
                         snapshot.set(snapshot.get().copy(phase = reason.toPhase()))
                         main.post {
+                            overlay.close()
                             stopForeground(STOP_FOREGROUND_REMOVE)
                             stopSelf()
                         }
@@ -122,11 +127,21 @@ public class CaptureService : Service() {
                 )
             capture = session
             session.start()
+            main.post {
+                val phase = snapshot.get().phase
+                if (!stopping.get() && (phase == CapturePhase.STARTING || phase == CapturePhase.CAPTURING)) {
+                    if (overlay.show() != OverlayShowResult.SHOWN) {
+                        snapshot.set(CaptureSnapshot(CapturePhase.FAILED))
+                        stopCapture()
+                    }
+                }
+            }
         } catch (cancelled: java.util.concurrent.CancellationException) {
             throw cancelled
         } catch (_: RuntimeException) {
             snapshot.set(CaptureSnapshot(CapturePhase.FAILED))
             main.post {
+                overlay.close()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
@@ -171,6 +186,7 @@ public class CaptureService : Service() {
 
     private fun stopCapture() {
         stopping.set(true)
+        overlay.close()
         worker.post { capture?.close() }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
@@ -178,6 +194,7 @@ public class CaptureService : Service() {
 
     override fun onDestroy() {
         stopping.set(true)
+        overlay.close()
         worker.post {
             try {
                 capture?.close()

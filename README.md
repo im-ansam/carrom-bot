@@ -5,7 +5,8 @@ with shared geometry, board-state and prediction data contracts from
 [CB-12](https://ansamcd.atlassian.net/browse/CB-12). No Carrom AI behavior is implemented.
 The launchable app from [CB-13](https://ansamcd.atlassian.net/browse/CB-13) provides
 start/stop controls, settings navigation and privacy-safe local diagnostics. [CB-20](https://ansamcd.atlassian.net/browse/CB-20)
-adds consent-based screen capture in a foreground service.
+adds consent-based screen capture in a foreground service. [CB-32](https://ansamcd.atlassian.net/browse/CB-32)
+adds a permission-checked floating Hide control owned by that service.
 
 ## Modules
 
@@ -17,7 +18,7 @@ adds consent-based screen capture in a foreground service.
 | core:planner | JVM | model, physics | Shot generation, simulation ranking, cooperative budgeted scheduling |
 | core:vision | Android library | model | Board geometry, object recognition, tracking and stationary state qualification |
 | core:capture | Android library | model | Bounded MediaProjection frames, resize and resource ownership |
-| core:overlay | Android library | model | Future aiming overlay |
+| core:overlay | Android library | model | Permission-safe floating window, immediate hide and lifecycle cleanup |
 
 Dependencies point inward to platform-free modules; core modules never depend on app.
 OpenCV 4.12.0 is confined to vision; kotlinx-coroutines-core 1.10.2 is confined to planner scheduling.
@@ -27,12 +28,17 @@ to the foreground capture service. It continues across app backgrounding and rec
 Stop in the app or capture notification ends sharing. Process death never restores capture.
 Frames are borrowed synchronously in memory, closed after delivery and never saved or logged.
 The controls show only frame counts and pixel dimensions. The standalone vision adapter
-is not wired into capture yet; aiming and floating overlays remain future work.
+is not wired into capture yet; trajectory rendering remains future work. The floating Hide
+control consumes touches only inside its bounds; other touches reach the underlying app.
+Hide removes the overlay immediately while sharing continues. Rotation/display changes hide
+it conservatively; restart sharing to show it again. Stop, service destruction and capture
+termination release the window. Permission revocation while visible removes it and stops sharing.
 On Android 13+, the foreground service can run without
 notification permission; Android may show its controls only in Active apps when notifications
 are disabled. The app's Stop control remains available.
 See the [permission setup decision](docs/adr/0003-permission-setup.md) and its
-[capture extension](docs/adr/0010-consented-screen-capture.md).
+[capture extension](docs/adr/0010-consented-screen-capture.md) and
+[overlay lifecycle](docs/adr/0022-overlay-lifecycle.md).
 
 [CB-21 board geometry](docs/adr/0011-board-geometry.md) detects a complete high-contrast
 near-square boundary, returns an immutable homography with geometric confidence,
