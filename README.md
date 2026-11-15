@@ -12,7 +12,7 @@ start/stop permission checks, settings navigation and privacy-safe local diagnos
 | --- | --- | --- | --- |
 | app | Android app | all six core modules | Launcher, permission setup, diagnostics and composition |
 | core:model | JVM | none | Shared state, coordinates and permission setup contracts |
-| core:physics | JVM | model | Fixed-step motion, configurable drag and striker power |
+| core:physics | JVM | model | Fixed-step motion, drag, striker power and swept body contacts |
 | core:planner | JVM | model, physics | Future shot planning |
 | core:vision | Android library | model | Future OpenCV adapter |
 | core:capture | Android library | model | Future screen capture |
@@ -36,8 +36,10 @@ fixed steps and an explicit simulation clock, bounded by a configured step budge
 The [CB-15 drag and power models](docs/adr/0005-friction-and-power.md) add configurable
 constant deceleration, analytic stopping distance and an invertible linear striker
 power mapping. Zero configured drag preserves free motion. These models require
-calibration; contact response and pocketing remain future work. Only collision-free
-horizons are supported. Out-of-bounds or nonfinite updates fail explicitly.
+calibration. The [CB-16 contact solver](docs/adr/0006-body-contact-solver.md) adds swept
+circle contacts, configurable masses/restitution, separation and deterministic chains.
+Wall response and pocketing remain future work. Out-of-bounds, nonfinite updates or
+collision-budget exhaustion fail explicitly.
 
 ## Build
 
