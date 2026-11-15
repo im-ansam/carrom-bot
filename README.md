@@ -12,7 +12,7 @@ start/stop permission checks, settings navigation and privacy-safe local diagnos
 | --- | --- | --- | --- |
 | app | Android app | all six core modules | Launcher, permission setup, diagnostics and composition |
 | core:model | JVM | none | Shared state, coordinates and permission setup contracts |
-| core:physics | JVM | model | Fixed-step motion, drag, striker power and swept body contacts |
+| core:physics | JVM | model | Fixed-step motion, drag, striker power, swept body contacts and wall rebounds |
 | core:planner | JVM | model, physics | Future shot planning |
 | core:vision | Android library | model | Future OpenCV adapter |
 | core:capture | Android library | model | Future screen capture |
@@ -38,8 +38,10 @@ constant deceleration, analytic stopping distance and an invertible linear strik
 power mapping. Zero configured drag preserves free motion. These models require
 calibration. The [CB-16 contact solver](docs/adr/0006-body-contact-solver.md) adds swept
 circle contacts, configurable masses/restitution, separation and deterministic chains.
-Wall response and pocketing remain future work. Out-of-bounds, nonfinite updates or
-collision-budget exhaustion fail explicitly.
+The [CB-17 rebound solver](docs/adr/0007-wall-rebounds.md) adds closed rectangular walls,
+normal/tangential restitution, wall friction and repeated banks in the same event loop.
+Pocket openings and capture remain future work. Invalid containment, nonfinite updates
+or collision-budget exhaustion fail explicitly.
 
 ## Build
 

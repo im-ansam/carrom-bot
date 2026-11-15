@@ -8,7 +8,11 @@ package io.github.carrombot.core.physics
  * [deceleration] is isotropic drag in mm/s²; zero preserves free motion, positive
  * values enable the configurable constant-deceleration approximation for every body.
  * [discMass] and [strikerMass] are positive masses in a common unit (only their ratio matters).
- * [restitution] is normal restitution in [0, 1]; no tangential friction or spin is modeled.
+ * [restitution] is body normal restitution in [0, 1]; body friction and spin are not modeled.
+ * [wallRestitution] reverses/scales approaching wall-normal speed in [0, 1].
+ * [wallTangentialRestitution] retains wall-tangent speed in [0, 1], before Coulomb friction.
+ * [wallFriction] is a nonnegative Coulomb coefficient: tangent speed loses at most
+ * wallFriction * (1 + wallRestitution) * incoming normal speed, without reversal.
  * [contactTolerance] is the contact detection distance in mm, not a rest-speed threshold.
  * [maxCollisionIterations] bounds pair scans/advancements per fixed step, including separation.
  * Defaults are uncalibrated equal masses and elastic contacts. Budget exhaustion, arithmetic
@@ -24,6 +28,9 @@ public data class PhysicsConfig(
     public val restitution: Double = 1.0,
     public val contactTolerance: Double = 1e-8,
     public val maxCollisionIterations: Int = 4096,
+    public val wallRestitution: Double = 1.0,
+    public val wallTangentialRestitution: Double = 1.0,
+    public val wallFriction: Double = 0.0,
 ) {
     init {
         require(timeStepSeconds.isFinite() && timeStepSeconds > 0.0) { "Step must be finite and positive" }
@@ -37,6 +44,11 @@ public data class PhysicsConfig(
         require(restitution.isFinite() && restitution in 0.0..1.0) { "Restitution must be in [0, 1]" }
         require(contactTolerance.isFinite() && contactTolerance > 0.0) { "Invalid contact tolerance" }
         require(maxCollisionIterations in 1..MAX_STEPS) { "Invalid collision iteration budget" }
+        require(wallRestitution.isFinite() && wallRestitution in 0.0..1.0) { "Invalid wall restitution" }
+        require(wallTangentialRestitution.isFinite() && wallTangentialRestitution in 0.0..1.0) {
+            "Invalid wall tangential restitution"
+        }
+        require(wallFriction.isFinite() && wallFriction >= 0.0) { "Invalid wall friction" }
     }
 
     public val timeLimitSeconds: Double get() = timeStepSeconds * maxSteps

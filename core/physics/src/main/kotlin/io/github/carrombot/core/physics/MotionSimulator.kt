@@ -10,12 +10,12 @@ import java.util.Collections
 /**
  * Deterministic motion with optional constant deceleration, in mm and mm/s.
  * Between contacts, zero deceleration retains p(next) = p + v * dt, v(next) = v.
- * Resolves body contacts in stable ID order. No randomness or
+ * Resolves body contacts in stable ID order followed by radius-aware wall rebounds. No randomness or
  * pocketing is applied. Exact zero velocity defines rest.
  *
  * Each call owns its trajectory. Invalid/nonfinite arithmetic or leaving board bounds
  * throws [IllegalArgumentException]; no clamped or partial successful trajectory escapes.
- * Wall response and pocket capture are not implemented.
+ * Walls are closed, including pocket locations; pocket capture is not implemented.
  */
 public class MotionSimulator(
     public val config: PhysicsConfig,
