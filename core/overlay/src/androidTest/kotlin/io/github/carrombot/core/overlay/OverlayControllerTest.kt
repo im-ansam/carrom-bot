@@ -120,6 +120,11 @@ class OverlayControllerTest {
     fun outsideTouchesReachActivityAndHideButtonDetachesImmediately() {
         permission("allow")
         ActivityScenario.launch(TouchTestActivity::class.java).use { scenario ->
+            await("Underlying Activity has input focus") {
+                var focused = false
+                scenario.onActivity { focused = it.hasWindowFocus() }
+                focused
+            }
             main {
                 controller = OverlayController(context)
                 assertEquals(OverlayShowResult.SHOWN, checkNotNull(controller).show())
@@ -135,18 +140,28 @@ class OverlayControllerTest {
                 point = location[0] + button.width / 2 to location[1] + button.height / 2
             }
             shell("input tap ${point.first} ${point.second}")
-            instrumentation.waitForIdleSync()
-            scenario.onActivity { assertEquals(1, it.taps) }
+            await("Single outside tap reaches Activity") {
+                var taps = 0
+                scenario.onActivity { taps = it.taps }
+                taps == 1
+            }
             // Real input into the floating control, rather than invoking the controller directly.
-            val hide =
-                instrumentation.uiAutomation.windows
-                    .flatMap { it.root?.findAccessibilityNodeInfosByText("Hide overlay").orEmpty() }
-                    .first()
+            var hide: android.view.accessibility.AccessibilityNodeInfo? = null
+            await("Hide control becomes accessible") {
+                hide =
+                    instrumentation.uiAutomation.windows
+                        .flatMap { it.root?.findAccessibilityNodeInfosByText("Hide overlay").orEmpty() }
+                        .firstOrNull()
+                hide != null
+            }
             val bounds = android.graphics.Rect()
-            hide.getBoundsInScreen(bounds)
+            checkNotNull(hide).getBoundsInScreen(bounds)
             shell("input tap ${bounds.centerX()} ${bounds.centerY()}")
-            instrumentation.waitForIdleSync()
-            main { assertFalse(checkNotNull(controller).isShowing) }
+            await("Hide tap detaches overlay") {
+                var showing = true
+                main { showing = checkNotNull(controller).isShowing }
+                !showing
+            }
         }
     }
 
@@ -185,6 +200,18 @@ class OverlayControllerTest {
 
     private fun permission(mode: String) {
         shell("appops set ${context.packageName} SYSTEM_ALERT_WINDOW $mode")
+    }
+
+    private fun await(
+        description: String,
+        condition: () -> Boolean,
+    ) {
+        val deadline = SystemClock.elapsedRealtime() + 15_000
+        while (SystemClock.elapsedRealtime() < deadline) {
+            if (condition()) return
+            Thread.sleep(100)
+        }
+        assertTrue("$description timed out", condition())
     }
 
     private fun main(action: () -> Unit) = instrumentation.runOnMainSync(action)

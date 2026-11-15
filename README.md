@@ -120,6 +120,13 @@ on coroutine workers with simulation/time budgets, cooperative cancellation, exa
 request-local physics caching and power-policy pruning. Partial results identify
 unexamined candidates and retain only complete evidence; deadlines are cooperative.
 
+[CB-33 trajectory rendering](docs/adr/0023-trajectory-rendering.md) supplies an explicit
+board-mm/local-pixel Canvas renderer and passive view for multi-body paths, rebound,
+contact and pocket markers, selected/alternative candidates, power and sensitivity.
+Normalized [0,1] inputs have an explicit mapping adapter. Synthetic goldens verify
+rendering; production planner/capture integration remains CB-35. The floating Hide
+control continues to show no fabricated trajectories.
+
 ## Build
 
 Start from a fresh checkout (GitHub access to this private repository is required):
