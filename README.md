@@ -48,6 +48,11 @@ identified by `strikerCaptured`; discs are removed. Player scoring and turn rule
 remain caller responsibilities. Invalid containment, nonfinite updates or
 collision-budget exhaustion fail explicitly.
 
+The [CB-19 regression harness](docs/adr/0009-physics-regression-harness.md) checks
+ordered analytic event snapshots, repeated/fine-clock runs and seeded physical
+properties in the ordinary JVM test suite. See [synthetic benchmarks](benchmarks/README.md)
+for the SDK-free candidate evaluation command, measured baseline and limitations.
+
 ## Build
 
 Start from a fresh checkout (GitHub access to this private repository is required):

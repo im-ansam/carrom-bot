@@ -1,0 +1,19 @@
+# v1; family;elapsed seconds;type;body;target; tolerance 1e-7 seconds
+# Independent analytic travel times for shot-v1.csv. Exact event identities/order; numeric times tolerant.
+direct;0.2;BODY_CONTACT;d;s
+direct;0.45;CAPTURE;d;p
+disc-bank;0.207152330911474;BODY_CONTACT;d;s
+disc-bank;0.557152330911474;WALL_CONTACT;d;RIGHT
+disc-bank;1.357152330911474;CAPTURE;d;p
+striker-bank;0.25;WALL_CONTACT;s;LEFT
+striker-bank;0.7;BODY_CONTACT;d;s
+striker-bank;0.95;CAPTURE;d;p
+combination;0.1;BODY_CONTACT;a;s
+combination;0.2;BODY_CONTACT;a;b
+combination;0.45;CAPTURE;b;p
+multi-disc;0.1;BODY_CONTACT;a;s
+multi-disc;0.2;BODY_CONTACT;a;b
+multi-disc;0.25;CAPTURE;c;q
+multi-disc;0.45;CAPTURE;b;p
+multi-pocket;0.25;CAPTURE;a;p
+multi-pocket;0.25;CAPTURE;b;q

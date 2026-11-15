@@ -27,6 +27,7 @@ jobs:
           java-version: '21'
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4; validates wrapper
       - run: ./gradlew -PjvmOnly projects test check --console=plain
+      - run: ./gradlew -PjvmOnly :core:physics:benchmarkShots -PbenchmarkWarmup=5 -PbenchmarkRounds=10 --console=plain
 
   android:
     name: Android build and lint
