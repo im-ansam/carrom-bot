@@ -63,7 +63,7 @@ internal class ContactShotGeometry(
         )
     }
 
-    private fun validateScene() {
+    internal fun validateScene() {
         require(
             board.discs.all { it.velocity.x == 0.0 && it.velocity.y == 0.0 } &&
                 board.striker.velocity.x == 0.0 && board.striker.velocity.y == 0.0,
