@@ -9,11 +9,22 @@ public data class ShotScore(
     public val targetReward: Double,
     public val incidentalCapturePenalty: Double,
     public val wallContactPenalty: Double,
+    public val bodyContactPenalty: Double = 0.0,
+    public val controlDistancePenalty: Double = 0.0,
 ) {
-    public val total: Double = targetReward - incidentalCapturePenalty - wallContactPenalty
+    public val total: Double =
+        targetReward - incidentalCapturePenalty - wallContactPenalty - bodyContactPenalty - controlDistancePenalty
 
     init {
-        require(listOf(targetReward, incidentalCapturePenalty, wallContactPenalty).all { it.isFinite() && it >= 0.0 }) {
+        require(
+            listOf(
+                targetReward,
+                incidentalCapturePenalty,
+                wallContactPenalty,
+                bodyContactPenalty,
+                controlDistancePenalty,
+            ).all { it.isFinite() && it >= 0.0 },
+        ) {
             "Score terms must be finite and nonnegative"
         }
         require(total.isFinite()) { "Score overflow" }
@@ -78,16 +89,32 @@ public class ShotEvaluation private constructor(
             val score =
                 if (reasons.isEmpty()) {
                     val incidental = simulation.captures.count { it.kind != null } - capturedTargets
+                    val bodies = simulation.events.count { it.type == ShotEventType.BODY_CONTACT }
                     ShotScore(
                         capturedTargets * config.weights.targetReward,
                         incidental * config.weights.incidentalCapturePenalty,
                         walls * config.weights.wallContactPenalty,
+                        bodies * config.weights.bodyContactPenalty,
+                        controlPenalty(simulation, config),
                     )
                 } else {
                     null
                 }
             return ShotEvaluation(candidate, simulation, score, reasons)
         }
+    }
+}
+
+private fun controlPenalty(
+    simulation: SimulationResult,
+    config: PlannerConfig,
+): Double {
+    val target = config.controlTarget ?: return 0.0
+    val center = simulation.finalState.striker.circle.center
+    return if (config.weights.controlDistancePenalty == 0.0) {
+        0.0
+    } else {
+        kotlin.math.hypot(center.x - target.x, center.y - target.y) * config.weights.controlDistancePenalty
     }
 }
 

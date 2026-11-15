@@ -100,7 +100,11 @@ requested striker-wall/target collision order and capture.
 [CB-28 disc banks and combinations](docs/adr/0018-disc-banks-combinations.md) enumerate
 bounded wall/disc sequences, prune corridors and require completed simulator-verified
 contact order and capture, including cut-transfer caroms and multi-disc chains.
-Multi-pocket generation and optimization remain future work.
+[CB-29 simulation search](docs/adr/0019-simulation-search.md) evaluates explicit
+placement/angle/power samples and sweeps calibrated powers with full simulated
+evidence, ranked feasible plans and diagnostic rejections. Optional body-contact
+and terminal striker-position penalties express caller policy. No sampled solution
+returns an empty plan list; multi-pocket generation and uncertainty remain future work.
 
 ## Build
 
