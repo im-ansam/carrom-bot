@@ -104,7 +104,11 @@ contact order and capture, including cut-transfer caroms and multi-disc chains.
 placement/angle/power samples and sweeps calibrated powers with full simulated
 evidence, ranked feasible plans and diagnostic rejections. Optional body-contact
 and terminal striker-position penalties express caller policy. No sampled solution
-returns an empty plan list; multi-pocket generation and uncertainty remain future work.
+returns an empty plan list.
+[CB-30 multi-pocket sensitivity](docs/adr/0020-multi-pocket-robustness.md) compares
+explicit target sets, retains deterministic parameter/detection/power scenarios,
+marks uncertain plans and exposes a higher-confidence feasible fallback when tested.
+Confidence is a sampled acceptance fraction, not a calibrated game success probability.
 
 ## Build
 
