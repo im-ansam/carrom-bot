@@ -16,6 +16,9 @@ of Activity binding, so capture continues while the app is backgrounded or recre
 non-creating local binding polls an immutable metadata snapshot every 250 ms while visible;
 there are no per-frame UI tasks, pixel transfers, persisted grants or global production state.
 The metadata count represents acquired frames, not vision processing or game accuracy.
+Reconnecting discards old active metadata before binding and restores it only from a live
+snapshot: bindService with flags=0 can succeed without a running service or callback. Terminal
+results already observed locally are preserved, and disconnected registrations are released.
 
 core:capture owns MediaProjectionCapture, one projection callback, one virtual display and
 an RGBA ImageReader with maxImages=2. A synchronous callback borrows each acquireLatestImage

@@ -58,16 +58,15 @@ class CapturePipelineTest {
                 assertReleased(context)
                 // Restart requires fresh real consent; the notification must also release capture.
                 startCapture(scenario)
-                val notification =
-                    context
-                        .getSystemService(NotificationManager::class.java)
-                        .activeNotifications
-                        .single { it.notification.actions?.isNotEmpty() == true }
-                        .notification
-                notification.actions
-                    .first()
-                    .actionIntent
-                    .send()
+                scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+                stopFromNotification(context)
+                assertReleased(context)
+                scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
+                await { status(scenario) == context.getString(R.string.status_idle) }
+                scenario.onActivity { assertTrue(it.findViewById<Button>(R.id.start_button).isEnabled) }
+                // Reuse the same Activity and its non-creating binding after the background stop.
+                startCapture(scenario)
+                scenario.onActivity { it.findViewById<Button>(R.id.stop_button).performClick() }
                 assertReleased(context)
             }
         } finally {
@@ -81,6 +80,19 @@ class CapturePipelineTest {
             automation.serviceInfo = info
             shell("appops set ${context.packageName} SYSTEM_ALERT_WINDOW $mode")
         }
+    }
+
+    private fun stopFromNotification(context: Context) {
+        val notification =
+            context
+                .getSystemService(NotificationManager::class.java)
+                .activeNotifications
+                .single { it.notification.actions?.isNotEmpty() == true }
+                .notification
+        notification.actions
+            .first()
+            .actionIntent
+            .send()
     }
 
     private fun startCapture(scenario: ActivityScenario<MainActivity>) {

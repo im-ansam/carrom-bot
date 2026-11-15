@@ -22,7 +22,7 @@ Commands below use Windows PowerShell and `gradlew.bat`.
 | Command | Actual result |
 | --- | --- |
 | `.\gradlew.bat :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=io.github.carrombot.CapturePipelineTest --console=plain` before implementation | Expected RED: compiled, real system consent accepted, timed out waiting for active capture; 1 failed test, 124 tasks (5 executed, 119 up-to-date). |
-| `.\gradlew.bat ktlintFormat projects assembleDebug test check lint connectedDebugAndroidTest --console=plain` on final implementation | PASS in 39 s; 320 tasks (26 executed, 294 up-to-date). Includes ktlint, Detekt, Android lint, debug assembly, JVM tests and both device suites. |
+| `.\gradlew.bat ktlintFormat projects assembleDebug test check lint connectedDebugAndroidTest --console=plain` on initial implementation | PASS in 39 s; 320 tasks (26 executed, 294 up-to-date). Includes ktlint, Detekt, Android lint, debug assembly, JVM tests and both device suites. |
 | `.\gradlew.bat -PjvmOnly projects test check --console=plain` with Android SDK environment variables unset | PASS in 14 s; 14 tasks (3 executed, 11 up-to-date); platform-free module build and tests remain SDK independent. |
 | `git diff --check` | PASS; no whitespace errors in the intended diff. |
 
@@ -48,6 +48,24 @@ display metrics during rotation; and dead non-creating bindings dropping termina
 state. The rotation regression now uses fresh display-context metrics, and disconnection
 releases its registration while preserving the last terminal snapshot. Asynchronous worker
 results are awaited by the invalid-grant assertion. The full combined run above is green.
+
+Codex review found a further stale-state case: a non-creating bind can return true without
+a service or callback after a background notification Stop. The extended app regression
+resumes the same Activity without recreation, checks stopped/enabled controls and restarts
+after another fresh consent. With the reviewed startup code restored, the targeted command
+above failed at the stopped-state assertion (36 s; 126 tasks: 6 executed, 120 up-to-date).
+With the fix it passed (36 s; 126 tasks: 10 executed, 116 up-to-date). Reconnection now clears
+active metadata regardless of bindService's return value and restores it only from a live
+snapshot. The final full revalidation is recorded below.
+
+Final review-fix validation: `.\gradlew.bat ktlintFormat projects assembleDebug test check lint
+connectedDebugAndroidTest --console=plain` passed in 39 s (320 tasks: 19 executed,
+301 up-to-date), including all 98 JVM and 7 device tests with zero failures/errors/skips.
+The preceding revalidation ran all device tests successfully but failed Detekt's 60-line
+method limit on the expanded integration test; extracting the notification helper resolved
+it before this final passing run. NO-SOURCE/SKIPPED tasks and runtime limits remain as below.
+SDK-free `-PjvmOnly projects test check --console=plain` also passed again with Android
+environment unset in 17 s (14 tasks: 3 executed, 11 up-to-date).
 
 Expected NO-SOURCE tasks include empty planner production/tests, vision/overlay Kotlin and
 unit/instrumentation sources, capture unit tests, Java sources, absent resources and native

@@ -47,9 +47,8 @@ internal class CaptureConnection(
             }
         }
 
-    fun connect(): Boolean {
+    fun connect() {
         if (!bound) bound = context.bindService(Intent(context, CaptureService::class.java), connection, 0)
-        return bound
     }
 
     fun disconnect() {

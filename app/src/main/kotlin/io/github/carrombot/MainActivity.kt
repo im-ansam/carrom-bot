@@ -49,7 +49,10 @@ public class MainActivity : Activity() {
 
     override fun onStart() {
         super.onStart()
-        if (!captureConnection.connect() && captureState?.phase in ACTIVE_PHASES) captureState = null
+        // A non-creating bind may succeed without a running service or any connection callback.
+        // Restore active metadata only when the live service actually supplies a snapshot.
+        if (captureState?.phase in ACTIVE_PHASES) captureState = null
+        captureConnection.connect()
     }
 
     override fun onResume() {
