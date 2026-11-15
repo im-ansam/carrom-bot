@@ -41,33 +41,7 @@ class CapturePipelineTest {
                 context.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
             }
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-                startCapture(scenario)
-                // More frames than ImageReader's capacity proves earlier native slots are released.
-                await { frameCount(status(scenario)) >= 6 }
-                // Activity recreation and backgrounding must not consume a second consent token.
-                scenario.recreate()
-                await { status(scenario).startsWith("Capturing authorized screen frames") }
-                val portrait = dimensions(status(scenario))
-                assertTrue(automation.setRotation(UiAutomation.ROTATION_FREEZE_90))
-                await("Rotation from $portrait") { dimensions(status(scenario)) == portrait.second to portrait.first }
-                scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
-                assertTrue(shell("dumpsys activity services ${context.packageName}").contains("CaptureService"))
-                scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
-                scenario.onActivity { it.findViewById<Button>(R.id.stop_button).performClick() }
-                await { status(scenario) == context.getString(R.string.status_idle) }
-                assertReleased(context)
-                // Restart requires fresh real consent; the notification must also release capture.
-                startCapture(scenario)
-                scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
-                stopFromNotification(context)
-                assertReleased(context)
-                scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
-                await { status(scenario) == context.getString(R.string.status_idle) }
-                scenario.onActivity { assertTrue(it.findViewById<Button>(R.id.start_button).isEnabled) }
-                // Reuse the same Activity and its non-creating binding after the background stop.
-                startCapture(scenario)
-                scenario.onActivity { it.findViewById<Button>(R.id.stop_button).performClick() }
-                assertReleased(context)
+                verifySessionLifecycle(scenario, context)
             }
         } finally {
             context.stopService(Intent().setClassName(context, "io.github.carrombot.CaptureService"))
@@ -81,6 +55,60 @@ class CapturePipelineTest {
             shell("appops set ${context.packageName} SYSTEM_ALERT_WINDOW $mode")
         }
     }
+
+    private fun verifySessionLifecycle(
+        scenario: ActivityScenario<MainActivity>,
+        context: Context,
+    ) {
+        startCapture(scenario)
+        // More frames than ImageReader's capacity proves earlier native slots are released.
+        await { frameCount(status(scenario)) >= 6 }
+        scenario.recreate()
+        await { status(scenario).startsWith("Capturing authorized screen frames") }
+        assertTrue(overlayPresent())
+        val portrait = dimensions(status(scenario))
+        assertTrue(automation.setRotation(UiAutomation.ROTATION_FREEZE_90))
+        await("Rotation from $portrait") { dimensions(status(scenario)) == portrait.second to portrait.first }
+        await { !overlayPresent() }
+        scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+        assertTrue(shell("dumpsys activity services ${context.packageName}").contains("CaptureService"))
+        scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
+        scenario.onActivity { it.findViewById<Button>(R.id.stop_button).performClick() }
+        await { status(scenario) == context.getString(R.string.status_idle) }
+        assertReleased(context)
+        // Fresh consent shows a fresh window; Hide does not stop capture.
+        startCapture(scenario)
+        val previousFrames = frameCount(status(scenario))
+        val hide =
+            automation.windows
+                .flatMap { it.root?.findAccessibilityNodeInfosByText("Hide overlay").orEmpty() }
+                .first()
+        assertTrue(hide.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+        await { !overlayPresent() }
+        await { frameCount(status(scenario)) > previousFrames }
+        scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+        stopFromNotification(context)
+        assertReleased(context)
+        scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
+        await { status(scenario) == context.getString(R.string.status_idle) }
+        scenario.onActivity { assertTrue(it.findViewById<Button>(R.id.start_button).isEnabled) }
+        // Explicit service destruction must also remove a still-visible window.
+        startCapture(scenario)
+        context.stopService(Intent(context, CaptureService::class.java))
+        assertReleased(context)
+        await { status(scenario) == context.getString(R.string.status_idle) }
+        startCapture(scenario)
+        scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+        stopFromNotification(context)
+        assertReleased(context)
+        scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
+        await { status(scenario) == context.getString(R.string.status_idle) }
+        startCapture(scenario)
+        scenario.onActivity { it.findViewById<Button>(R.id.stop_button).performClick() }
+        assertReleased(context)
+    }
+
+    private fun overlayPresent(): Boolean = shell("dumpsys window windows").contains("CarromBotOverlay")
 
     private fun stopFromNotification(context: Context) {
         val notification =
@@ -99,11 +127,13 @@ class CapturePipelineTest {
         scenario.onActivity { it.findViewById<Button>(R.id.start_button).performClick() }
         await { clickConsent() }
         await { status(scenario).startsWith("Capturing authorized screen frames") }
+        await { overlayPresent() }
     }
 
     private fun assertReleased(context: Context) {
         await { !shell("dumpsys activity services ${context.packageName}").contains("CaptureService") }
         await { shell("dumpsys media_projection").contains("null") }
+        await { !overlayPresent() }
     }
 
     private fun dimensions(status: String): Pair<Int, Int> {
