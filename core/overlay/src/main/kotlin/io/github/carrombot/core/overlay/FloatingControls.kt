@@ -53,7 +53,7 @@ public class FloatingControls(
     /** Selection and recommended power always come from the same immutable scene. */
     public fun render(state: AimControlsState) {
         check(android.os.Looper.myLooper() == android.os.Looper.getMainLooper())
-        status.setText(statusLabel(state))
+        status.text = state.message ?: context.getString(statusLabel(state))
         start.visibility = visible(state.phase == AimPhase.STOPPED || state.phase == AimPhase.ERROR)
         stop.visibility = visible(state.phase != AimPhase.STOPPED)
         pause.visibility = visible(state.phase == AimPhase.RUNNING)

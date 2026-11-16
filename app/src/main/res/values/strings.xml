@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="synthetic_open">Open synthetic fixture demo</string>
+    <string name="synthetic_board">Synthetic fixture source board. Colored circles are test objects, not a real game.</string>
+    <string name="synthetic_explanation">SYNTHETIC FIXTURE ONLY. Share this full screen, then use Start aiming. The separate prediction preview uses synthetic physics. Live game advice is unavailable until calibrated.</string>
+    <string name="synthetic_start">Share synthetic fixture screen</string>
+    <string name="synthetic_needs_overlay">Enable overlay access from the main screen first, then return to this synthetic demo.</string>
+    <string name="synthetic_needs_space">Synthetic demo needs more display space to separate source, controls and prediction preview.</string>
     <string name="app_name">Carrom Bot</string>
     <string name="start_assistant">Start assistant</string>
     <string name="stop_assistant">Stop</string>

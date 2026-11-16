@@ -64,13 +64,13 @@ class CapturePipelineTest {
         // More frames than ImageReader's capacity proves earlier native slots are released.
         await { frameCount(status(scenario)) >= 6 }
         clickFloating("Start aiming")
-        await { floatingText("No aiming data available yet") }
+        await { floatingText("Live aiming unavailable: calibrated game profile required") }
         clickFloating("Pause aiming")
         await { floatingText("Aiming paused") }
         val pausedFrames = frameCount(status(scenario))
         await { frameCount(status(scenario)) > pausedFrames }
         clickFloating("Resume aiming")
-        await { floatingText("No aiming data available yet") }
+        await { floatingText("Live aiming unavailable: calibrated game profile required") }
         clickFloating("Stop aiming")
         await { floatingText("Aiming stopped") }
         scenario.recreate()

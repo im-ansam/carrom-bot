@@ -62,6 +62,15 @@ internal class AimViewModel {
         return true
     }
 
+    fun message(
+        request: Long,
+        message: String,
+        clearScene: Boolean = false,
+    ) {
+        if (request != generation || state.phase != AimPhase.RUNNING) return
+        state = state.copy(message = message, scene = if (clearScene) null else state.scene)
+    }
+
     private fun change(phase: AimPhase) {
         generation++
         state = AimControlsState(phase)

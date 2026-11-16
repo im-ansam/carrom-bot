@@ -2,7 +2,7 @@
 
 Kotlin/Android foundation under [CB-1](https://ansamcd.atlassian.net/browse/CB-1),
 with shared geometry, board-state and prediction data contracts from
-[CB-12](https://ansamcd.atlassian.net/browse/CB-12). No Carrom AI behavior is implemented.
+[CB-12](https://ansamcd.atlassian.net/browse/CB-12). Planning is advisory; real-game accuracy is unverified.
 The launchable app from [CB-13](https://ansamcd.atlassian.net/browse/CB-13) provides
 start/stop controls, settings navigation and privacy-safe local diagnostics. [CB-20](https://ansamcd.atlassian.net/browse/CB-20)
 adds consent-based screen capture in a foreground service. [CB-32](https://ansamcd.atlassian.net/browse/CB-32)
@@ -21,14 +21,17 @@ adds a permission-checked floating Hide control owned by that service.
 | core:overlay | Android library | model | Permission-safe floating controls, passive trajectories and lifecycle cleanup |
 
 Dependencies point inward to platform-free modules; core modules never depend on app.
-OpenCV 4.12.0 is confined to vision; kotlinx-coroutines-core 1.10.2 is confined to planner scheduling.
+OpenCV 4.12.0 is owned by vision; app composition consumes its public adapters.
+kotlinx-coroutines-core 1.10.2 supports planner scheduling and app-owned pipeline jobs.
 The launcher checks overlay access and asks for screen-sharing consent only after Start.
 Denied/revoked permissions are retryable. A successful, fresh consent result is handed once
 to the foreground capture service. It continues across app backgrounding and recreation;
 Stop in the app or capture notification ends sharing. Process death never restores capture.
 Frames are borrowed synchronously in memory, closed after delivery and never saved or logged.
-The launcher shows frame counts and pixel dimensions. The standalone vision adapter
-is not wired into capture yet; trajectory rendering is available as a passive component. The floating Hide
+The launcher shows frame counts and pixel dimensions. CB-35 connects consented capture
+to vision, stable-state qualification, planning and trajectories in an explicitly labeled
+synthetic fixture demo. Live aiming explains that a calibrated game profile is required.
+The floating Hide
 control consumes touches only inside its bounds; other touches reach the underlying app.
 Hide removes the overlay immediately while sharing continues. Rotation/display changes hide
 it conservatively; restart sharing to show it again. Stop, service destruction and capture
@@ -57,7 +60,7 @@ measure mechanics only; see [validation](docs/validation-cb-22.md).
 occlusions, smooths observed geometry and measures raw motion. Its board estimator emits
 a shared BoardState only for a fresh, stationary, confidence-qualified scene matching an
 independently confirmed caller inventory. Missing/ambiguous objects and obstacles withhold
-readiness. Capture/planner/overlay integration remains CB-35; synthetic sequence tests
+readiness. CB-35 integrates this gate in the synthetic demo; synthetic sequence tests
 do not establish real-game accuracy. See [validation](docs/validation-cb-23.md).
 
 [CB-24 offline vision evaluation](tools/vision-eval/README.md) scores hash-pinned
@@ -124,15 +127,25 @@ unexamined candidates and retain only complete evidence; deadlines are cooperati
 board-mm/local-pixel Canvas renderer and passive view for multi-body paths, rebound,
 contact and pocket markers, selected/alternative candidates, power and sensitivity.
 Normalized [0,1] inputs have an explicit mapping adapter. Synthetic goldens verify
-rendering; production planner/capture integration remains CB-35. The floating Hide
-control continues to show no fabricated trajectories.
+rendering; CB-35 adds event-resolved physics geometry for faithful simulated paths.
+The floating Hide control clears both controls and synthetic prediction preview.
 
 [CB-34 aiming controls](docs/adr/0024-aiming-controls.md) add Start/Stop aiming,
 Pause/Resume, direct candidate selection, Next best shot, recommended power and
 accessible status/errors. Aiming mode changes clear predictions; screen sharing
 continues until End screen sharing, launcher Stop or notification Stop. The bounded
-panel scrolls for large text and candidate lists. Production candidates remain
-unavailable until CB-35 connects real evidence; no shots are executed automatically.
+panel scrolls for large text and candidate lists. No shots are executed automatically.
+
+[CB-35 integration](docs/adr/0025-synthetic-aiming-pipeline.md) provides **Open synthetic
+fixture demo** from the launcher. Allow overlay access first, then share the demo's
+full screen and press Start aiming. Original generated source pixels pass through
+actual MediaProjection, bounded owned RGBA copying, native detection, stationary
+tracking, budgeted planning and a separately labeled prediction preview below the
+source board. Source and preview require sufficient display space. Missing fixture
+markers, changed geometry, motion, stale frames or errors clear advice. Pause/Stop
+cancel jobs; ending sharing releases resources. Live-game calibration/inventory/legal
+placement acquisition is not implemented and synthetic settings never enable live
+game recommendations. See [actual validation](docs/validation-cb-35.md).
 
 ## Build
 

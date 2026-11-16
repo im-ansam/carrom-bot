@@ -24,6 +24,7 @@ public sealed interface AimAction {
 public data class AimControlsState(
     public val phase: AimPhase = AimPhase.STOPPED,
     public val scene: OverlayScene? = null,
+    public val message: String? = null,
 ) {
     init {
         require(scene == null || phase == AimPhase.RUNNING) { "Inactive aiming cannot retain evidence" }

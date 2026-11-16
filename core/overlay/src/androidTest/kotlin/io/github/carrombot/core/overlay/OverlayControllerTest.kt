@@ -11,6 +11,8 @@ import android.widget.FrameLayout
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import io.github.carrombot.core.model.BoardBounds
+import io.github.carrombot.core.model.Vec2
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -47,6 +49,26 @@ class OverlayControllerTest {
     private var originalMode = "default"
     private var controller: OverlayController? = null
     private var originalAccessibilityFlags = 0
+    private val syntheticScene =
+        OverlayScene(
+            BoardBounds(Vec2(0.0, 0.0), Vec2(100.0, 100.0)),
+            listOf(
+                RenderedCandidate(
+                    "synthetic",
+                    listOf(
+                        BodyTrajectory(
+                            "s",
+                            true,
+                            listOf(Vec2(10.0, 10.0), Vec2(90.0, 90.0)),
+                        ),
+                    ),
+                    emptyList(),
+                    0.5,
+                    null,
+                ),
+            ),
+            "synthetic",
+        )
 
     @Before
     fun rememberPermission() {
@@ -107,7 +129,12 @@ class OverlayControllerTest {
             assertEquals(OverlayShowResult.SHOWN, checkNotNull(controller).show())
         }
         instrumentation.waitForIdleSync()
-        main { assertTrue(checkNotNull(controller).isShowing) }
+        main {
+            assertTrue(checkNotNull(controller).isShowing)
+            assertTrue(checkNotNull(controller).updateSyntheticPreview(syntheticScene))
+        }
+        instrumentation.waitForIdleSync()
+        assertTrue(shell("dumpsys window windows").contains("CarromBotSyntheticPreview"))
         permission("deny")
         val deadline = SystemClock.elapsedRealtime() + 5_000
         var showing = true
@@ -116,6 +143,7 @@ class OverlayControllerTest {
             Thread.sleep(50)
         }
         assertFalse("Revocation must detach without resuming an Activity", showing)
+        assertFalse(shell("dumpsys window windows").contains("CarromBotSyntheticPreview"))
     }
 
     @Test
@@ -130,8 +158,10 @@ class OverlayControllerTest {
             main {
                 controller = OverlayController(context, onAction = {})
                 assertEquals(OverlayShowResult.SHOWN, checkNotNull(controller).show())
+                assertTrue(checkNotNull(controller).updateSyntheticPreview(syntheticScene))
             }
             instrumentation.waitForIdleSync()
+            assertTrue(shell("dumpsys window windows").contains("CarromBotSyntheticPreview"))
             var point = 0 to 0
             scenario.onActivity { activity ->
                 val button =
@@ -164,6 +194,12 @@ class OverlayControllerTest {
                 main { showing = checkNotNull(controller).isShowing }
                 !showing
             }
+            assertFalse(shell("dumpsys window windows").contains("CarromBotSyntheticPreview"))
+            main { assertTrue(checkNotNull(controller).updateSyntheticPreview(syntheticScene)) }
+            assertFalse(
+                "Updating hidden controls must not recreate the preview",
+                shell("dumpsys window windows").contains("CarromBotSyntheticPreview"),
+            )
         }
     }
 

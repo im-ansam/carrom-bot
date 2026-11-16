@@ -53,6 +53,71 @@ class ShotFixtureTest internal constructor(
         assertEquals(result.prediction.termination, fine.prediction.termination)
     }
 
+    @Test
+    fun `version one fixtures expose immutable deterministic resolved event geometry`() {
+        val result = fixture.simulate()
+        assertEquals(result.events, result.resolvedEvents.map { it.event })
+        assertEquals(result.resolvedEvents, fixture.simulate().resolvedEvents)
+        assertTrue(result.resolvedEvents.all { fixture.board.bounds.contains(it.bodyCenter) })
+        assertTrue(
+            result.resolvedEvents.all {
+                (it.event.type == ShotEventType.BODY_CONTACT) == (it.targetCenter != null)
+            },
+        )
+        result.resolvedEvents.forEach { resolved ->
+            val radius = radius(resolved.event.bodyId)
+            when (resolved.event.type) {
+                ShotEventType.BODY_CONTACT -> {
+                    val target = requireNotNull(resolved.targetCenter)
+                    val distance =
+                        kotlin.math.hypot(
+                            target.x - resolved.bodyCenter.x,
+                            target.y - resolved.bodyCenter.y,
+                        )
+                    assertEquals(radius + radius(resolved.event.target), distance, ShotFixture.TOLERANCE)
+                }
+
+                ShotEventType.WALL_CONTACT -> {
+                    val point = resolved.bodyCenter
+                    val gap =
+                        when (resolved.event.target) {
+                            "LEFT" -> point.x - fixture.board.bounds.min.x
+                            "RIGHT" -> fixture.board.bounds.max.x - point.x
+                            "TOP" -> point.y - fixture.board.bounds.min.y
+                            "BOTTOM" -> fixture.board.bounds.max.y - point.y
+                            else -> error("Unknown wall")
+                        }
+                    assertEquals(radius, gap, ShotFixture.TOLERANCE)
+                }
+
+                ShotEventType.CAPTURE -> {
+                    val pocket =
+                        fixture.board.pockets
+                            .single { it.id == resolved.event.target }
+                            .circle
+                    val distance =
+                        kotlin.math.hypot(
+                            pocket.center.x - resolved.bodyCenter.x,
+                            pocket.center.y - resolved.bodyCenter.y,
+                        )
+                    assertTrue(distance <= pocket.radius - radius + ShotFixture.TOLERANCE)
+                }
+            }
+        }
+        org.junit.Assert.assertThrows(UnsupportedOperationException::class.java) {
+            (result.resolvedEvents as MutableList).clear()
+        }
+    }
+
+    private fun radius(id: String): Double =
+        fixture.board.discs
+            .find { it.id == id }
+            ?.circle
+            ?.radius
+            ?: fixture.board.striker
+                .also { require(it.id == id) }
+                .circle.radius
+
     private fun assertVector(
         expected: Vec2,
         actual: Vec2,

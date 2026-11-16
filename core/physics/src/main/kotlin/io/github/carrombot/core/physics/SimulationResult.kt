@@ -3,6 +3,7 @@ package io.github.carrombot.core.physics
 import io.github.carrombot.core.model.BoardState
 import io.github.carrombot.core.model.DiscKind
 import io.github.carrombot.core.model.ShotPrediction
+import io.github.carrombot.core.model.Vec2
 import java.util.Collections
 
 /** Physical event type. Capture precedes body contacts, which precede walls at equal times. */
@@ -20,6 +21,13 @@ public data class ShotEvent(
         require(bodyId.isNotBlank() && target.isNotBlank()) { "Event IDs must not be blank" }
     }
 }
+
+/** Event-resolved centres in board mm. Body contact supplies both centres; other events only one. */
+public data class ResolvedShotEvent(
+    public val event: ShotEvent,
+    public val bodyCenter: Vec2,
+    public val targetCenter: Vec2? = null,
+)
 
 /** Physical scoring outcome; null kind denotes a striker foul. No turn/queen-cover rules are inferred. */
 public data class PocketCapture(
@@ -39,9 +47,11 @@ public class SimulationResult internal constructor(
     public val prediction: ShotPrediction,
     events: List<ShotEvent>,
     captures: List<PocketCapture>,
+    resolvedEvents: List<ResolvedShotEvent> = emptyList(),
 ) {
     public val events: List<ShotEvent> = Collections.unmodifiableList(ArrayList(events))
     public val captures: List<PocketCapture> = Collections.unmodifiableList(ArrayList(captures))
+    public val resolvedEvents: List<ResolvedShotEvent> = Collections.unmodifiableList(ArrayList(resolvedEvents))
     public val finalState: BoardState get() = prediction.frames.last().boardState
     public val strikerCaptured: Boolean get() = captures.any { it.kind == null }
 }
