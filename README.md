@@ -3,6 +3,9 @@
 Kotlin/Android foundation under [CB-1](https://ansamcd.atlassian.net/browse/CB-1),
 with shared geometry, board-state and prediction data contracts from
 [CB-12](https://ansamcd.atlassian.net/browse/CB-12). Planning is advisory; real-game accuracy is unverified.
+See the [Phase 1 acceptance matrix and release limits](docs/phase1-acceptance.md)
+and [architecture contracts](docs/architecture.md). Synthetic demo readiness does
+not establish real-game readiness; a calibrated live-game profile is unavailable.
 The launchable app from [CB-13](https://ansamcd.atlassian.net/browse/CB-13) provides
 start/stop controls, settings navigation and privacy-safe local diagnostics. [CB-20](https://ansamcd.atlassian.net/browse/CB-20)
 adds consent-based screen capture in a foreground service. [CB-32](https://ansamcd.atlassian.net/browse/CB-32)
