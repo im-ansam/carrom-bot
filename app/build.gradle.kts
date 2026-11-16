@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":core:vision"))
     implementation(project(":core:capture"))
     implementation(project(":core:overlay"))
+    implementation(libs.coroutines.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.core)

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="synthetic_preview">SYNTHETIC prediction preview\nSeparate from source board; no live-game calibration.</string>
     <string name="hide_overlay">Hide overlay</string>
     <string name="start_aiming">Start aiming</string>
     <string name="stop_aiming">Stop aiming</string>

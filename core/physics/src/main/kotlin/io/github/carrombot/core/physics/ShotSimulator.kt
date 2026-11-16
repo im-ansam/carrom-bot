@@ -39,7 +39,12 @@ public class ShotSimulator {
         }
         val reason = if (atRest(board)) PredictionTermination.REST else PredictionTermination.TIME_LIMIT
         checkpoint()
-        return SimulationResult(ShotPrediction(shot, frames, reason), timeline.events, timeline.captures)
+        return SimulationResult(
+            ShotPrediction(shot, frames, reason),
+            timeline.events,
+            timeline.captures,
+            timeline.resolvedEvents,
+        )
     }
 
     private fun atRest(board: BoardState): Boolean =
@@ -49,6 +54,7 @@ public class ShotSimulator {
 internal class ShotTimeline {
     val events = arrayListOf<ShotEvent>()
     val captures = arrayListOf<PocketCapture>()
+    val resolvedEvents = arrayListOf<ResolvedShotEvent>()
     val removed = hashSetOf<String>()
     var capturedStriker: ContactBody? = null
 }

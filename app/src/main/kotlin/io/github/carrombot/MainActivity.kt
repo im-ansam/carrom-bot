@@ -44,6 +44,9 @@ public class MainActivity : Activity() {
             logDiagnostic(DiagnosticEvent.SETTINGS_OPENED, state)
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+        binding.syntheticButton.setOnClickListener {
+            startActivity(Intent(this, SyntheticDemoActivity::class.java))
+        }
         update(DiagnosticEvent.APP_OPENED, state)
     }
 

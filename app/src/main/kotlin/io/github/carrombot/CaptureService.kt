@@ -15,11 +15,14 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
+import android.os.SystemClock
 import io.github.carrombot.core.capture.CaptureEnd
 import io.github.carrombot.core.capture.MediaProjectionCapture
-import io.github.carrombot.core.overlay.AimAction
 import io.github.carrombot.core.overlay.OverlayController
 import io.github.carrombot.core.overlay.OverlayShowResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
@@ -40,7 +43,9 @@ public class CaptureService : Service() {
     private lateinit var thread: HandlerThread
     private lateinit var worker: Handler
     private lateinit var overlay: OverlayController
-    private val aiming = AimViewModel()
+    private val aimingScope = CoroutineScope(SupervisorJob() + MainDispatcher(main))
+    private var aiming: AimingCoordinator? = null
+    private var lastCopiedAt = 0L // capture looper only; monotonic receipt clock, not Image timestamp
 
     // Owned exclusively by worker. Framework lifecycle calls serialize cleanup onto that looper.
     private var capture: MediaProjectionCapture? = null
@@ -56,8 +61,7 @@ public class CaptureService : Service() {
         overlay =
             OverlayController(this, ::stopCapture, { action ->
                 if (!stopping.get()) {
-                    aiming.dispatch(action)
-                    overlay.updateControls(aiming.state)
+                    aiming?.dispatch(action)
                 }
             }, ::stopCapture)
         thread = HandlerThread("CarromBotCapture").apply { start() }
@@ -87,6 +91,17 @@ public class CaptureService : Service() {
             return
         }
         accepted = true
+        val viewport = DemoViewport.from(intent?.getIntArrayExtra(EXTRA_DEMO_VIEWPORT))
+        aiming =
+            AimingCoordinator(
+                aimingScope,
+                SystemClock::elapsedRealtimeNanos,
+                viewport?.let { { SyntheticVision(it)::observe } },
+                { state, _ ->
+                    overlay.updateControls(state)
+                    if (!overlay.updateSyntheticPreview(state.scene)) aiming?.presentationFailed()
+                },
+            )
         snapshot.set(CaptureSnapshot(CapturePhase.STARTING))
         try {
             startCaptureForeground()
@@ -105,6 +120,7 @@ public class CaptureService : Service() {
             intent?.getParcelableExtra(EXTRA_CONSENT)
         }
 
+    @Suppress("LongMethod") // Single capture ownership boundary with explicit terminal cleanup branches.
     private fun openCapture(data: Intent) {
         if (stopping.get()) return
         try {
@@ -122,11 +138,27 @@ public class CaptureService : Service() {
                             snapshot.set(
                                 CaptureSnapshot(CapturePhase.CAPTURING, previous.frames + 1, image.width, image.height),
                             )
+                            val now = SystemClock.elapsedRealtimeNanos()
+                            if (now - lastCopiedAt >= COPY_INTERVAL_NANOS) {
+                                lastCopiedAt = now
+                                aiming?.offer {
+                                    val plane = image.planes.single()
+                                    RgbaFrame.copy(
+                                        image.width,
+                                        image.height,
+                                        now,
+                                        plane.buffer,
+                                        plane.rowStride,
+                                        plane.pixelStride,
+                                    )
+                                }
+                            }
                         }
                     },
                     onEnd = { reason ->
                         snapshot.set(snapshot.get().copy(phase = reason.toPhase()))
                         main.post {
+                            aiming?.close()
                             overlay.close()
                             stopForeground(STOP_FOREGROUND_REMOVE)
                             stopSelf()
@@ -193,8 +225,9 @@ public class CaptureService : Service() {
     }
 
     private fun stopCapture() {
-        aiming.dispatch(AimAction.Stop)
+        aiming?.close()
         stopping.set(true)
+        aimingScope.cancel()
         overlay.close()
         worker.post { capture?.close() }
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -203,6 +236,8 @@ public class CaptureService : Service() {
 
     override fun onDestroy() {
         stopping.set(true)
+        aiming?.close()
+        aimingScope.cancel()
         overlay.close()
         worker.post {
             try {
@@ -226,6 +261,8 @@ public class CaptureService : Service() {
         const val ACTION_START = "io.github.carrombot.START_CAPTURE"
         const val ACTION_STOP = "io.github.carrombot.STOP_CAPTURE"
         const val EXTRA_CONSENT = "consent"
+        const val EXTRA_DEMO_VIEWPORT = "synthetic_viewport"
+        private const val COPY_INTERVAL_NANOS = 100_000_000L
         private const val CHANNEL_ID = "screen_capture"
         private const val NOTIFICATION_ID = 20
     }

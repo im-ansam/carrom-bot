@@ -44,7 +44,7 @@ internal class CollisionEngine(
             for (i in bodies.indices) {
                 val after =
                     rebounds.resolve(bodies[i], board.bounds) { wall ->
-                        record(ShotEventType.WALL_CONTACT, bodies[i].id, wall.name)
+                        record(ShotEventType.WALL_CONTACT, bodies[i].id, wall.name, bodies[i].circle.center)
                     }
                 changed = changed || after != bodies[i]
                 bodies[i] = after
@@ -112,7 +112,7 @@ internal class CollisionEngine(
         b: ContactBody,
     ) {
         if (a.velocity != beforeA.velocity || b.velocity != beforeB.velocity) {
-            record(ShotEventType.BODY_CONTACT, a.id, b.id)
+            record(ShotEventType.BODY_CONTACT, a.id, b.id, a.circle.center, b.circle.center)
         }
     }
 
@@ -148,8 +148,12 @@ internal class CollisionEngine(
         type: ShotEventType,
         bodyId: String,
         target: String,
+        center: Vec2,
+        targetCenter: Vec2? = null,
     ) {
-        timeline?.events?.add(ShotEvent(eventTime, type, bodyId, target))
+        val event = ShotEvent(eventTime, type, bodyId, target)
+        timeline?.events?.add(event)
+        timeline?.resolvedEvents?.add(ResolvedShotEvent(event, center, targetCenter))
     }
 
     private fun pocketInterval(
@@ -186,7 +190,7 @@ internal class CollisionEngine(
                 if (body.id == board.striker.id) sink.capturedStriker = frozen
                 val kind = board.discs.find { it.id == body.id }?.kind
                 sink.captures.add(PocketCapture(eventTime, body.id, pocket.id, kind))
-                record(ShotEventType.CAPTURE, body.id, pocket.id)
+                record(ShotEventType.CAPTURE, body.id, pocket.id, body.circle.center)
                 iterator.remove()
             }
         }

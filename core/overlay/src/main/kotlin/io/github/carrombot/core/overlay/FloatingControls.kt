@@ -53,7 +53,7 @@ public class FloatingControls(
     /** Selection and recommended power always come from the same immutable scene. */
     public fun render(state: AimControlsState) {
         check(android.os.Looper.myLooper() == android.os.Looper.getMainLooper())
-        status.setText(statusLabel(state))
+        status.text = state.message ?: context.getString(statusLabel(state))
         start.visibility = visible(state.phase == AimPhase.STOPPED || state.phase == AimPhase.ERROR)
         stop.visibility = visible(state.phase != AimPhase.STOPPED)
         pause.visibility = visible(state.phase == AimPhase.RUNNING)
@@ -88,7 +88,7 @@ public class FloatingControls(
         heightMeasureSpec: Int,
     ) {
         val configuration = resources.configuration
-        val width = dp(minOf(MAX_WIDTH_DP, configuration.screenWidthDp - MARGIN_DP))
+        val width = widthPixels(context)
         val height = dp(minOf(MAX_HEIGHT_DP, configuration.screenHeightDp / 2))
         super.onMeasure(
             MeasureSpec.makeMeasureSpec(width.coerceAtLeast(1), MeasureSpec.EXACTLY),
@@ -157,11 +157,17 @@ public class FloatingControls(
 
     private fun visible(value: Boolean): Int = if (value) View.VISIBLE else View.GONE
 
-    private companion object {
-        const val MINIMUM_TOUCH_DP = 48
-        const val MAX_WIDTH_DP = 240
-        const val MAX_HEIGHT_DP = 320
-        const val MARGIN_DP = 32
-        const val PERCENT = 100
+    public companion object {
+        /** Shared with hosts reserving source space before the window is attached. */
+        public fun widthPixels(context: Context): Int {
+            val widthDp = minOf(MAX_WIDTH_DP, context.resources.configuration.screenWidthDp - MARGIN_DP)
+            return (widthDp * context.resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
+        }
+
+        private const val MINIMUM_TOUCH_DP = 48
+        private const val MAX_WIDTH_DP = 240
+        private const val MAX_HEIGHT_DP = 320
+        private const val MARGIN_DP = 32
+        private const val PERCENT = 100
     }
 }
