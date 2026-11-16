@@ -59,6 +59,14 @@ Native work is synchronous and cannot be interrupted midway; cancellation suppre
 its result and all native memory releases before the call returns. CancellationException
 propagates; runtime failures clear advice into retryable ERROR without exception text.
 
+`core:vision.RgbaBoardEstimator` exclusively owns native allocation, marker sampling,
+crop views, normalization and release. Its public boundary borrows packed owned RGBA
+bytes synchronously and returns BoardEstimate plus a model CoordinateTransform.
+FrameViewport and FrameMarker are validated value contracts. App composition owns
+no OpenCV objects, including in its fixture integration tests; those use Android
+Bitmap pixels to construct owned RGBA input. Vision retains its dependency on model
+only, without an overlay/app dependency.
+
 Search evaluates at most 32 fresh simulations or 500ms cooperatively, using CB-31.
 These are work policies, not hard latency guarantees. Dense-board-v1 profiling
 records elapsed cost and displayed proposal count, without a timing gate or accuracy claim.
@@ -79,7 +87,11 @@ The synthetic trajectory window is a bounded, non-touchable, separately labeled
 prediction preview at bottom/start. It is deliberately off the captured source
 viewport to avoid overlay/capture feedback. Board-mm maps explicitly to local preview
 pixels, with legend space above. This is not live-game screen alignment. The demo
-refuses displays too small to separate source and preview. Android 12+ window alpha
+refuses displays too small to separate source, controls and preview before requesting
+consent. The source's measured bounds must clear the same FloatingControls.widthPixels
+reservation used by the actual panel, including a 16dp gap inside the visible display
+frame. In particular, the current 360dp portrait layout is explicitly refused;
+480dp portrait is covered by the consented integration test. Android 12+ window alpha
 is half the system obscuring-opacity limit, capped at 0.5; older versions use 0.5.
 Controls remain the existing bounded touchable window. Hide/display invalidation,
 permission loss, capture end, Stop and service destruction remove the preview too;

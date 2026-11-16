@@ -65,8 +65,22 @@ public class SyntheticDemoActivity : Activity() {
         val location = IntArray(2)
         board.getLocationOnScreen(location)
         val metrics = displaySize()
+        val visibleFrame = android.graphics.Rect()
+        board.getWindowVisibleDisplayFrame(visibleFrame)
+        val gap = (16 * resources.displayMetrics.density).toInt()
         val previewHeight = board.width + (148 * resources.displayMetrics.density).toInt()
-        if (board.width < 100 || location[1] + board.height >= metrics.heightPixels - previewHeight - 48) {
+        val horizontal =
+            DemoLayout.hasHorizontalClearance(
+                location[0],
+                board.width,
+                minOf(metrics.widthPixels, visibleFrame.right),
+                io.github.carrombot.core.overlay.FloatingControls
+                    .widthPixels(this),
+                gap,
+            )
+        val previewTop = minOf(metrics.heightPixels, visibleFrame.bottom) - previewHeight - gap
+        val vertical = location[1] + board.height < previewTop
+        if (!horizontal || board.width < 100 || !vertical) {
             status.setText(R.string.synthetic_needs_space)
             return
         }

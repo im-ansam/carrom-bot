@@ -188,7 +188,55 @@ Display size/density reset before emulator shutdown. No captured screen images
 were persisted. No manual TalkBack, OEM, modern app-only capture, cross-application
 game accuracy or hard latency/battery claim is made.
 
-Complete staged source/test/documentation diff reviewed, whitespace checks clean;
-preexisting gradlew.bat change excluded. Remaining delivery gates: PR/CI/Codex review
-and guarded merge. Jira remains In Progress until the PR is opened; no Done claim
-is made before reviewed merge.
+## PR review corrections
+
+PR <https://github.com/im-ansam/carrom-bot/pull/34>, initial head
+`cb381fabe2c9c2107936f0e6cf17f017a58272a5`. Both required CI jobs passed in
+<https://github.com/im-ansam/carrom-bot/actions/runs/43805759174>. Initial Codex
+review completed with two findings, so this head was not merged:
+
+1. [Native ownership](https://github.com/im-ansam/carrom-bot/pull/34#discussion_r4582057988):
+   moved all Mat allocation, crop/normalization/marker processing and release into
+   core:vision.RgbaBoardEstimator. Public input/output use owned RGBA bytes,
+   FrameViewport/FrameMarker, BoardEstimate and model CoordinateTransform. App
+   composition only wraps model geometry for overlay. App fixture tests pack Android
+   Bitmap pixels directly; `rg 'org\.opencv|\bMat\b' app/src` returns no matches.
+2. [Source/control overlap](https://github.com/im-ansam/carrom-bot/pull/34#discussion_r4582057993):
+   share the exact FloatingControls width calculation with the pre-consent guard.
+   Measured source bounds must leave a 16dp gap before the controls, inside the
+   visible display frame; source/preview vertical separation is checked there too.
+   Conservatively refuse unsupported 360dp portrait layouts rather than ask for
+   consent and silently fail marker recognition. Regression tests cover 360dp at
+   three densities, 480dp separation, measured offsets and integer overflow.
+   A native denial/retry test also shifts the real source toward controls and proves
+   the layout error is visible without a third consent request.
+
+Review-fix validation (same memory limits/environment as above):
+
+- `ktlintFormat projects assembleDebug test check lint :app:assembleDebugAndroidTest
+  :core:vision:assembleDebugAndroidTest :core:overlay:assembleDebugAndroidTest`:
+  first run failed Detekt on two condition/line-length issues
+  (`cb35-review-fixes.log`); after corrections BUILD SUCCESSFUL in 1m18s
+  (`cb35-review-fixes-2.log`).
+- Added the native overlap-before-consent assertion; `ktlintFormat ktlintCheck
+  detekt :app:assembleDebugAndroidTest` passed in 28s
+  (`cb35-review-regression-package.log`).
+- SDK-free `-PjvmOnly projects test check` passed in 24s with both SDK variables
+  removed (`cb35-review-jvm.log`); Gradle then stopped before device tests.
+- Current XML: **214 JVM tests**, zero failures/errors/skips (model17, physics87,
+  planner63, vision25, overlay4, app18). Four additional tests exercise raw-frame
+  value contracts and source/control clearance without native loading.
+- Reinstalled all changed APKs after confirmed boot/launcher focus; all installations
+  completed Success before tests. Post-fix API31 runs all passed: app OK8 in19.229s
+  (`cb35-review-adb-app.log`), overlay OK10 in8.309s
+  (`cb35-review-adb-overlay.log`), vision OK13 in1.321s
+  (`cb35-review-adb-vision.log`), capture OK2 in3.445s
+  (`cb35-review-adb-capture.log`). **33 device tests**, no failure/error/skip. Native
+  fixture processing now goes exclusively through core:vision's packed-RGBA adapter.
+  The app test explicitly proves shifted source overlap cannot request consent,
+  alongside denial/retry and actual evaluated-power recommendations. Restored display
+  size/density and shut down the emulator; no Gradle daemon remains active.
+
+Complete source/test/documentation diff reviewed; whitespace checks clean and
+preexisting gradlew.bat change excluded. Jira is In Review; no Done or merge claim
+is made before clean exact-head re-review and required CI.

@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Button
+import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
@@ -20,8 +21,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.opencv.android.Utils
-import org.opencv.core.Mat
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -30,7 +29,7 @@ class SyntheticPipelineTest {
     private val automation = instrumentation.uiAutomation
 
     @Test
-    fun syntheticConsentDenialCanRetryWithoutStartingCapture() {
+    fun syntheticConsentDenialCanRetryAndOverlappingSourceNeverRequestsConsent() {
         val context = instrumentation.targetContext
         val original = shell("appops get ${context.packageName} SYSTEM_ALERT_WINDOW")
         val mode =
@@ -69,6 +68,18 @@ class SyntheticPipelineTest {
                         buttons(activity.window.decorView).single { it.text == label }.performClick()
                     }
                     instrumentation.waitForIdleSync()
+                }
+                scenario.onActivity { activity ->
+                    val root = activity.findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as? ViewGroup
+                    val source = checkNotNull(root).getChildAt(1)
+                    source.offsetLeftAndRight(source.width)
+                    val label = context.getString(R.string.synthetic_start)
+                    buttons(activity.window.decorView).single { it.text == label }.performClick()
+                    val status = root.getChildAt(0) as? TextView
+                    org.junit.Assert.assertEquals(
+                        context.getString(R.string.synthetic_needs_space),
+                        checkNotNull(status).text.toString(),
+                    )
                 }
                 org.junit.Assert.assertEquals(2, requests.get())
                 assertFalse(shell("dumpsys activity services ${context.packageName}").contains("CaptureService"))
@@ -181,15 +192,18 @@ class SyntheticPipelineTest {
                 draw(Canvas(bitmap))
             }
         }
-        // BoardDetector owns explicit OpenCV initialization, before Utils invokes native methods.
-        io.github.carrombot.core.vision.BoardDetector
-            .create(SyntheticProfile.bounds)
-        val mat = Mat()
         try {
-            Utils.bitmapToMat(bitmap, mat)
-            return ByteArray(500 * 500 * 4).also { mat.get(0, 0, it) }
+            val pixels = IntArray(500 * 500)
+            bitmap.getPixels(pixels, 0, 500, 0, 0, 500, 500)
+            return ByteArray(pixels.size * 4).also { rgba ->
+                pixels.forEachIndexed { index, color ->
+                    rgba[index * 4] = (color ushr 16).toByte()
+                    rgba[index * 4 + 1] = (color ushr 8).toByte()
+                    rgba[index * 4 + 2] = color.toByte()
+                    rgba[index * 4 + 3] = (color ushr 24).toByte()
+                }
+            }
         } finally {
-            mat.release()
             bitmap.recycle()
         }
     }
