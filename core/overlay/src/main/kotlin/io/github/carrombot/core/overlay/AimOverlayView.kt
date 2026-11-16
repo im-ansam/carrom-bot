@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 
 /**
  * Small accessible control surface. Trajectory rendering and board mapping are separate work.
@@ -13,9 +14,12 @@ import android.widget.FrameLayout
 public class AimOverlayView(
     context: Context,
     onHide: () -> Unit,
+    public val controls: FloatingControls? = null,
 ) : FrameLayout(context) {
     init {
-        addView(
+        val column = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
+        addView(column)
+        column.addView(
             Button(context).apply {
                 setText(R.string.hide_overlay)
                 isAllCaps = false
@@ -24,6 +28,7 @@ public class AimOverlayView(
                 setOnClickListener { onHide() }
             },
         )
+        controls?.let(column::addView)
     }
 
     private companion object {
