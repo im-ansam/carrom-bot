@@ -79,11 +79,12 @@ class CapturePipelineTest {
         // Fresh consent shows a fresh window; Hide does not stop capture.
         startCapture(scenario)
         val previousFrames = frameCount(status(scenario))
-        val hide =
+        await("Hide control becomes accessible") {
             automation.windows
                 .flatMap { it.root?.findAccessibilityNodeInfosByText("Hide overlay").orEmpty() }
-                .first()
-        assertTrue(hide.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                .firstOrNull()
+                ?.performAction(AccessibilityNodeInfo.ACTION_CLICK) == true
+        }
         await { !overlayPresent() }
         await { frameCount(status(scenario)) > previousFrames }
         scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)

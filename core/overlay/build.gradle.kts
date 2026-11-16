@@ -31,7 +31,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":core:model"))
+    api(project(":core:model"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.core)
