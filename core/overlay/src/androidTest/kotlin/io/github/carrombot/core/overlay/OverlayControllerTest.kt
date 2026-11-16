@@ -72,11 +72,13 @@ class OverlayControllerTest {
     @Test
     fun deniedPermissionCannotAttachAndRegrantRequiresExplicitShow() {
         permission("deny")
+        var actions = 0
         main {
-            val overlay = OverlayController(context)
+            val overlay = OverlayController(context, onAction = { actions++ }, onEndSharing = { actions++ })
             controller = overlay
             assertEquals(OverlayShowResult.PERMISSION_DENIED, overlay.show())
             assertFalse(overlay.isShowing)
+            assertEquals(0, actions)
         }
         permission("allow")
         main {
@@ -126,7 +128,7 @@ class OverlayControllerTest {
                 focused
             }
             main {
-                controller = OverlayController(context)
+                controller = OverlayController(context, onAction = {})
                 assertEquals(OverlayShowResult.SHOWN, checkNotNull(controller).show())
             }
             instrumentation.waitForIdleSync()

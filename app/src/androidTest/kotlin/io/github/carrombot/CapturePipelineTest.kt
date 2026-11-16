@@ -63,6 +63,16 @@ class CapturePipelineTest {
         startCapture(scenario)
         // More frames than ImageReader's capacity proves earlier native slots are released.
         await { frameCount(status(scenario)) >= 6 }
+        clickFloating("Start aiming")
+        await { floatingText("No aiming data available yet") }
+        clickFloating("Pause aiming")
+        await { floatingText("Aiming paused") }
+        val pausedFrames = frameCount(status(scenario))
+        await { frameCount(status(scenario)) > pausedFrames }
+        clickFloating("Resume aiming")
+        await { floatingText("No aiming data available yet") }
+        clickFloating("Stop aiming")
+        await { floatingText("Aiming stopped") }
         scenario.recreate()
         await { status(scenario).startsWith("Capturing authorized screen frames") }
         assertTrue(overlayPresent())
@@ -105,8 +115,29 @@ class CapturePipelineTest {
         scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
         await { status(scenario) == context.getString(R.string.status_idle) }
         startCapture(scenario)
-        scenario.onActivity { it.findViewById<Button>(R.id.stop_button).performClick() }
+        clickFloating("End screen sharing")
         assertReleased(context)
+    }
+
+    private fun floatingText(text: String): Boolean =
+        automation.windows.any {
+            it.root?.findAccessibilityNodeInfosByText(text)?.isNotEmpty() == true
+        }
+
+    private fun clickFloating(text: String) {
+        var node: AccessibilityNodeInfo? = null
+        await("Floating $text becomes accessible") {
+            node =
+                automation.windows
+                    .flatMap { it.root?.findAccessibilityNodeInfosByText(text).orEmpty() }
+                    .firstOrNull { it.className == Button::class.java.name && it.isEnabled }
+            node != null
+        }
+        checkNotNull(node).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.id)
+        assertTrue(
+            "Floating $text accepts user action",
+            checkNotNull(node).performAction(AccessibilityNodeInfo.ACTION_CLICK),
+        )
     }
 
     private fun overlayPresent(): Boolean = shell("dumpsys window windows").contains("CarromBotOverlay")

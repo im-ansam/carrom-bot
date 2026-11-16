@@ -25,6 +25,8 @@ public enum class OverlayShowResult { SHOWN, PERMISSION_DENIED, FAILED, CLOSED }
 public class OverlayController(
     context: Context,
     private val onPermissionLost: () -> Unit = {},
+    private val onAction: ((AimAction) -> Unit)? = null,
+    private val onEndSharing: () -> Unit = {},
 ) : Closeable {
     private val context = context.applicationContext
     private val windows = this.context.getSystemService(WindowManager::class.java)
@@ -34,6 +36,7 @@ public class OverlayController(
     private var view: AimOverlayView? = null
     private var watching = false
     private var closed = false
+    private var controlsState = AimControlsState()
     private val permissionChanged =
         AppOpsManager.OnOpChangedListener { _, packageName ->
             if (packageName == this.context.packageName) {
@@ -89,7 +92,8 @@ public class OverlayController(
     }
 
     private fun attach(): OverlayShowResult {
-        val candidate = AimOverlayView(context, ::hide)
+        val controls = onAction?.let { FloatingControls(context, it, onEndSharing).apply { render(controlsState) } }
+        val candidate = AimOverlayView(context, ::hide, controls)
         return try {
             watching = true
             appOps.startWatchingMode(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, context.packageName, permissionChanged)
@@ -113,6 +117,14 @@ public class OverlayController(
             hide()
             OverlayShowResult.PERMISSION_DENIED
         }
+    }
+
+    /** Retains presentation only; updating a hidden window never reattaches it. */
+    public fun updateControls(state: AimControlsState) {
+        checkMain()
+        if (closed) return
+        controlsState = state
+        view?.controls?.render(state)
     }
 
     /** Immediate removal, including while backgrounded. Repeated calls are safe. */

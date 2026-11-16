@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hide_overlay">Hide overlay</string>
+    <string name="start_aiming">Start aiming</string>
+    <string name="stop_aiming">Stop aiming</string>
+    <string name="pause_aiming">Pause aiming</string>
+    <string name="resume_aiming">Resume aiming</string>
+    <string name="end_sharing">End screen sharing</string>
+    <string name="next_candidate">Next best shot</string>
+    <string name="select_candidate">Select candidate</string>
+    <string name="candidate_label">%1$d: %2$s</string>
+    <string name="candidate_selected_label">Selected %1$d: %2$s</string>
+    <string name="candidate_select_description">Select candidate %1$d, %2$s, recommended power %3$d%%</string>
+    <string name="candidate_selected">Selected candidate %1$d, %2$s, recommended power %3$d%%</string>
+    <string name="recommended_power">Recommended power: %1$d%%. Take the shot manually.</string>
+    <string name="power_unavailable">Recommended power unavailable.</string>
+    <string name="aiming_stopped">Aiming stopped. Screen sharing continues.</string>
+    <string name="aiming_paused">Aiming paused. Predictions cleared. Screen sharing continues.</string>
+    <string name="aiming_failed">Aiming failed. Predictions cleared. Press Start aiming to retry. Screen sharing continues.</string>
+    <string name="aiming_waiting">No aiming data available yet. Screen sharing continues.</string>
+    <string name="aiming_no_candidates">No available shot. Screen sharing continues.</string>
+    <string name="aiming_advisory">Advisory only. Select a candidate and take the shot manually.</string>
 </resources>

@@ -18,7 +18,7 @@ adds a permission-checked floating Hide control owned by that service.
 | core:planner | JVM | model, physics | Shot generation, simulation ranking, cooperative budgeted scheduling |
 | core:vision | Android library | model | Board geometry, object recognition, tracking and stationary state qualification |
 | core:capture | Android library | model | Bounded MediaProjection frames, resize and resource ownership |
-| core:overlay | Android library | model | Permission-safe floating window, immediate hide and lifecycle cleanup |
+| core:overlay | Android library | model | Permission-safe floating controls, passive trajectories and lifecycle cleanup |
 
 Dependencies point inward to platform-free modules; core modules never depend on app.
 OpenCV 4.12.0 is confined to vision; kotlinx-coroutines-core 1.10.2 is confined to planner scheduling.
@@ -27,8 +27,8 @@ Denied/revoked permissions are retryable. A successful, fresh consent result is 
 to the foreground capture service. It continues across app backgrounding and recreation;
 Stop in the app or capture notification ends sharing. Process death never restores capture.
 Frames are borrowed synchronously in memory, closed after delivery and never saved or logged.
-The controls show only frame counts and pixel dimensions. The standalone vision adapter
-is not wired into capture yet; trajectory rendering remains future work. The floating Hide
+The launcher shows frame counts and pixel dimensions. The standalone vision adapter
+is not wired into capture yet; trajectory rendering is available as a passive component. The floating Hide
 control consumes touches only inside its bounds; other touches reach the underlying app.
 Hide removes the overlay immediately while sharing continues. Rotation/display changes hide
 it conservatively; restart sharing to show it again. Stop, service destruction and capture
@@ -126,6 +126,13 @@ contact and pocket markers, selected/alternative candidates, power and sensitivi
 Normalized [0,1] inputs have an explicit mapping adapter. Synthetic goldens verify
 rendering; production planner/capture integration remains CB-35. The floating Hide
 control continues to show no fabricated trajectories.
+
+[CB-34 aiming controls](docs/adr/0024-aiming-controls.md) add Start/Stop aiming,
+Pause/Resume, direct candidate selection, Next best shot, recommended power and
+accessible status/errors. Aiming mode changes clear predictions; screen sharing
+continues until End screen sharing, launcher Stop or notification Stop. The bounded
+panel scrolls for large text and candidate lists. Production candidates remain
+unavailable until CB-35 connects real evidence; no shots are executed automatically.
 
 ## Build
 
