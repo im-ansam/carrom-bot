@@ -6,6 +6,11 @@ target. This is a measured failure to validate the combined constant-drag,
 linear-arrow-proxy and fixed normal-wall model, not proof of a particular replacement
 physics model or of an incorrect game implementation.
 
+CB-38 follow-up: [training-only timing/model comparison](calibration/comparison.md),
+[prior-art audit](calibration/prior-art.md) and
+[controlled phone acquisition](calibration/controlled-phone-protocol.md). The v1
+annotations, split and historical report below remain unchanged.
+
 The authorized source is Miniclip Carrom Pool: Disc Game (`com.miniclip.carrom`),
 Nothing Phone (2a). Game version, equipment identity and physical dimensions are
 unknown. No media, account data or machine source paths are repository assets.

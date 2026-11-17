@@ -1,7 +1,11 @@
 """Independent analytic regressions for offline candidates and split isolation."""
 import copy
 import math
+import json
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 import compare
 
@@ -58,6 +62,31 @@ class ComparisonTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             compare.clock_audit([[0, 1, 1], [0, 2, 1]])
 
+    def test_extraction_audit_verifies_pts_centres_and_missing_markers(self):
+        raw = {'sha256': 'synthetic-fixture', 'time_base': '1/1000', 'rows': [
+            {'pts': 0, 't': 0, 'bottom': [360, 830]},
+            {'pts': 20, 't': .02, 'bottom': [360, 830]},
+            {'pts': 40, 't': .04, 'bottom': None},
+            {'pts': 80, 't': .08, 'bottom': [428, 830]}]}
+        shot = {'id': 'test', 'clip': 'synthetic', 'release': 0, 'usable_until': .08,
+                'start': [.5, .5], 'direction': [1, 0], 'events': [],
+                'samples': [[0, .5, .5], [.02, .5, .5], [.08, .6, .5]]}
+        data = {'inventory': [{'clip': 'synthetic', 'sha256': 'synthetic-fixture'}]}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)/'cb37-synthetic.json'
+            path.write_text(json.dumps(raw), encoding='utf-8')
+            result = compare.audit(data, [shot], Path(directory))
+            self.assertEqual(result['training_shots'][0]['missing_marker_pts'], [.04])
+            raw['rows'][1]['t'] = .021
+            path.write_text(json.dumps(raw), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'PTS'):
+                compare.audit(data, [shot], Path(directory))
+            raw['rows'][1]['t'] = .02
+            raw['rows'][1]['bottom'][0] = 370
+            path.write_text(json.dumps(raw), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'Annotation'):
+                compare.audit(data, [shot], Path(directory))
+
     def test_split_rejects_mislabel_and_ignores_poisoned_holdout(self):
         shots = fixture_shots()
         plan = {'training_ids': [s['id'] for s in shots], 'version': 1, 'dataset': 'test'}
@@ -67,6 +96,29 @@ class ComparisonTest(unittest.TestCase):
         changed['shots'][0]['split'] = 'holdout'
         with self.assertRaises(ValueError):
             compare.training_only(changed, plan)
+
+    def test_internal_fold_never_fits_its_scored_shot_or_historical_samples(self):
+        plan = compare.load_plan()
+        plan.update(dataset='synthetic', training_ids=['0', '1', '2', '3'], candidates=['constant'])
+        shots = fixture_shots()
+        for shot in shots:
+            times = [i*.05 for i in range(12)]
+            shot.update(usable_until=times[-1], events=[])
+            shot['samples'] = [[t]+p for t,p in zip(times,independent_axis(shot,[.5,5,.8,0],times))]
+        data = {'version': 1, 'dataset': 'synthetic',
+                'shots': shots+[{'id': 'poison', 'split': 'holdout', 'samples': None}]}
+        fitted_ids = []
+        def recorded_fit(training, candidate, config):
+            fitted_ids.append([s['id'] for s in training])
+            return {'parameters': [.5, 5, .8], 'mse_bw2': 0, 'start_solutions': []}
+        with patch.object(compare, 'fit', side_effect=recorded_fit):
+            result = compare.comparison(data,plan)
+        self.assertEqual(fitted_ids[0], plan['training_ids'])
+        for omitted, ids in zip(plan['training_ids'],fitted_ids[1:5]):
+            self.assertNotIn(omitted,ids)
+            self.assertEqual(len(ids),3)
+        self.assertTrue(all('poison' not in ids for ids in fitted_ids))
+        self.assertFalse(result['historical_holdout_rescored'])
 
     def test_short_windows_are_more_coordinate_sensitive(self):
         def rows(span):
@@ -92,7 +144,8 @@ class ComparisonTest(unittest.TestCase):
         shot['pullback'] = .2
         shot['samples'] = [[t]+p for t,p in zip([0, .1, .2], independent_axis(shot, [.5, 5, .8, 0], [0, .1, .2]))]
         result = compare.identifiability(shots, 'power_curve', [.5, 5, .8, 1], compare.load_plan())
-        self.assertEqual(result['zero_columns'], ['exponent'])
+        # This short pre-rail window also cannot observe restitution.
+        self.assertEqual(result['zero_columns'], ['e', 'exponent'])
 
 
 def fixture_shots():
