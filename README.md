@@ -190,6 +190,12 @@ disposable emulator with no personal accounts or screen content. See [CB-20 vali
 
 ## Quality and delivery
 
+[Offline recording analysis](docs/calibration.md) measures nine wall shots and three
+exploratory breaks with external private media, actual PTS and held-out errors.
+CB-37's fitted model fails its exploratory trajectory targets; it supplies a
+reproducible numeric report, **no usable live-game profile**. Synthetic demo settings
+remain separate and live aiming remains unavailable.
+
 See [AGENTS.md](AGENTS.md), [tool decisions](docs/adr/0001-bootstrap-toolchain.md),
 [Codex setup](docs/codex-setup.md), and [validation evidence](docs/validation.md).
 For each contribution, read the Jira ticket, parent and dependencies, then branch from

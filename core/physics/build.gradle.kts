@@ -23,6 +23,23 @@ dependencies {
 // Benchmark tooling shares versioned test inputs, without entering the published JVM library.
 kotlin.sourceSets.test {
     kotlin.srcDir(rootProject.file("benchmarks/src/test/kotlin"))
+    kotlin.srcDir(rootProject.file("tools/calibration/src/test/kotlin"))
+}
+
+sourceSets.test {
+    resources.srcDir(rootProject.file("test-fixtures/calibration"))
+}
+
+tasks.register<JavaExec>("replayCalibration") {
+    group = "verification"
+    description = "Compare sanitized offline measurements against the production simulator."
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    workingDir = rootProject.projectDir
+    mainClass.set("io.github.carrombot.core.physics.CalibrationReplay")
+    doFirst {
+        args(providers.gradleProperty("calibrationInput").get())
+    }
 }
 
 tasks.register<JavaExec>("benchmarkShots") {

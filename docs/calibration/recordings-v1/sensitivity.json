@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "interpretation": "Coherent annotation sensitivity, not confidence intervals; held-out data never refitted",
+  "cases": [
+    {
+      "perturbation": "pullback_px",
+      "amount": -5,
+      "fit": {
+        "parameters": [
+          0.9702762724173608,
+          12.566270867527614,
+          1
+        ],
+        "fit_mse_bw2": 0.006196494302769927,
+        "tangential_restitution": null,
+        "wall_friction": null,
+        "optimizer": "bounded deterministic coarse-grid/five-start simplex v1; local optimum, no statistical CI"
+      }
+    },
+    {
+      "perturbation": "pullback_px",
+      "amount": 5,
+      "fit": {
+        "parameters": [
+          0.9562439636830511,
+          11.47017008681663,
+          1
+        ],
+        "fit_mse_bw2": 0.009917770054086924,
+        "tangential_restitution": null,
+        "wall_friction": null,
+        "optimizer": "bounded deterministic coarse-grid/five-start simplex v1; local optimum, no statistical CI"
+      }
+    },
+    {
+      "perturbation": "release_s",
+      "amount": -0.0334,
+      "fit": {
+        "parameters": [
+          0.8831196041109999,
+          11.510297847888248,
+          1
+        ],
+        "fit_mse_bw2": 0.008252722325769624,
+        "tangential_restitution": null,
+        "wall_friction": null,
+        "optimizer": "bounded deterministic coarse-grid/five-start simplex v1; local optimum, no statistical CI"
+      }
+    },
+    {
+      "perturbation": "release_s",
+      "amount": 0.0334,
+      "fit": {
+        "parameters": [
+          1.0571361530297927,
+          12.539466718915124,
+          1
+        ],
+        "fit_mse_bw2": 0.008400501016992214,
+        "tangential_restitution": null,
+        "wall_friction": null,
+        "optimizer": "bounded deterministic coarse-grid/five-start simplex v1; local optimum, no statistical CI"
+      }
+    }
+  ]
+}

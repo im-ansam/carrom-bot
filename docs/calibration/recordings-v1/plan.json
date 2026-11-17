@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "dataset": "miniclip-wall-v1",
+  "declared_before_fitting": "2026-11-17",
+  "split": {"fit": ["wall-low-1", "wall-low-2", "wall-medium-1", "wall-medium-2", "wall-maximum-1", "wall-maximum-2"], "holdout": ["wall-low-3", "wall-medium-3", "wall-maximum-3"]},
+  "units": "board widths, seconds; origin at inner top-left rail, +x right, +y down",
+  "geometry_px": {"rails": [20, 490, 700, 1170], "striker_radius": 23, "disc_radius": 18, "uncertainty": 3},
+  "targets_exploratory_not_release_gates": {"trajectory_rmse_board_width": 0.02, "bounce_time_error_seconds": 0.05, "bounce_position_error_board_width": 0.02, "stop_position_error_board_width": 0.03, "stop_time_error_seconds": 0.15},
+  "fit_bounds": {"deceleration_board_width_per_second_squared": [0.001, 10], "maximum_speed_board_width_per_second": [0.01, 30], "normal_restitution": [0, 1]},
+  "unknown": ["physical_board_mm", "game_version", "equipment_identity", "tangential_restitution", "wall_friction", "mass_ratio", "body_restitution", "pocket_parameters"],
+  "policy": "One shared constant drag, linear zero-intercept pullback-proxy mapping and normal wall restitution. Fit first two repetitions only. Third repetition held out at every power. Breaks exploratory only. No live profile import."
+}
