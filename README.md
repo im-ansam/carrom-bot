@@ -196,6 +196,11 @@ CB-37's fitted model fails its exploratory trajectory targets; it supplies a
 reproducible numeric report, **no usable live-game profile**. Synthetic demo settings
 remain separate and live aiming remains unavailable.
 
+[Training-only model comparison](docs/calibration/comparison.md) audits timing and
+compares compact offline alternatives without reusing historical holdouts. Its
+[staged phone protocol](docs/calibration/controlled-phone-protocol.md) defines the
+fresh measurements needed before any live profile can be accepted.
+
 See [AGENTS.md](AGENTS.md), [tool decisions](docs/adr/0001-bootstrap-toolchain.md),
 [Codex setup](docs/codex-setup.md), and [validation evidence](docs/validation.md).
 For each contribution, read the Jira ticket, parent and dependencies, then branch from

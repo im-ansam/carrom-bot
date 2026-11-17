@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "dataset": "miniclip-wall-v1",
+  "declared_before_new_fitting": "2026-11-17",
+  "training_ids": ["wall-low-1", "wall-low-2", "wall-medium-1", "wall-medium-2", "wall-maximum-1", "wall-maximum-2"],
+  "candidates": ["constant", "speed_drag", "power_curve"],
+  "bounds": {"a": [0.05, 3.0], "gain": [2.0, 26.0], "e": [0.3, 1.0], "b": [0.0, 3.0], "exponent": [0.5, 2.0]},
+  "coarse_grid": {"a": [0.3, 0.6, 1.0, 2.0], "gain": [6.0, 10.0, 14.0, 18.0, 24.0], "e": [0.6, 0.85, 1.0], "b": [0.0, 0.5, 1.5], "exponent": [0.5, 1.0, 2.0]},
+  "optimizer": {"starts": 5, "iterations": 350, "normalized_initial_step": 0.04, "normalized_convergence": 1e-8},
+  "equations": {"constant": "dv/dt=-a; v0=gain*q", "speed_drag": "dv/dt=-(a+b*v); v0=gain*q", "power_curve": "dv/dt=-a; v0=gain*q*(q/0.2)^(exponent-1)"},
+  "rationale": "Baseline plus one added parameter at a time: nonnegative speed-dependent loss or bounded monotone arrow curvature. No combined candidate, per-label speeds, offsets or per-shot fitted clocks. q is arrow length/BW, not normalized game power; gain retains s^-1 at q=0.2. Bounds are offline search limits, not physical estimates.",
+  "objective": "Equal-weight mean of per-shot mean squared 2D centre errors at original PTS, including repeated centres. No interpolation/deduplication or fitted direction. Existing annotated directions remain conditional initial observations.",
+  "cross_validation": "Six leave-one-shot-out folds within training_ids; fit five, score omitted shot. No historical holdout or break access in numerical comparison. Internal folds are not fresh validation.",
+  "selection": {"minimum_relative_cv_rmse_improvement": 0.1, "minimum_folds_improved": 5, "policy": "Prefer constant unless an extension improves aggregate CV RMSE by at least 10% and individual RMSE in at least 5/6 folds. Rank eligible extensions by CV RMSE then candidate order. This selects a follow-up hypothesis only, never a usable profile."},
+  "uncertainty": {"release_shifts_s": [-0.0334, 0.0334], "arrow_shifts_px": [-5, 5], "policy": "Refit all six training shots coherently for each single perturbation, separately per candidate. No per-shot alignment. Samples before a shifted release predict stationary start. Ranges are sensitivities, not confidence intervals."},
+  "identifiability": "Report fold and perturbation parameter ranges, normalized finite-difference residual Jacobian column norms/correlations and bound proximity; no confidence/probability claims. Local diagnostics retain negative estimates and coordinate sensitivity.",
+  "audit": "Check training samples against full numeric extraction PTS/marker rows and hashes; report exact repeated-position run brackets and missing-marker times. Audit first isolated segment at 0.1/0.2/0.4s windows and final isolated segment using original samples, no inferred updates or annotation corrections from residuals.",
+  "historical_holdouts": "Already viewed in CB-37; excluded entirely, no retrospective rescore in this report.",
+  "tolerance": {"numeric_reproduction_absolute": 1e-8, "synthetic_position_bw": 1e-8},
+  "readiness": "Inconclusive or diagnosed mismatch is acceptable. Unknown build/equipment/physical mm remain unknown. Fresh controlled phone acquisition required. No production change or live enablement."
+}

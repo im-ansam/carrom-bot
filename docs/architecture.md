@@ -12,6 +12,10 @@ widths and an explicitly arbitrary reference-unit adapter preserve shared mm-lab
 contracts. The [measured report](calibration.md) rejects profile use; it does not
 enable live aiming or change synthetic settings. No production module edges change.
 
+[Offline candidate comparison](adr/0027-training-only-model-comparison.md) keeps
+alternate drag/proxy equations in Python tooling. Internal cross-validation uses
+only six development shots; fresh sealed phone evidence remains a separate gate.
+
 ## State, simulation and search
 
 [Shared immutable snapshots](adr/0002-shared-model-contracts.md) use board mm,
