@@ -1,0 +1,5 @@
+# Original analytic isolated wall shot. Arbitrary 1000 reference units/BW, no physical mm.
+# id,elapsed,sx,sy,dx,dy,proxy,a,gain,e,observed_x,observed_y,analytic_x,analytic_y
+synthetic-v1,0,0.5,0.4,1,0,1,0.5,1,0.5,0.5,0.4,0.5,0.4
+synthetic-v1,0.25,0.5,0.4,1,0,1,0.5,1,0.5,0.734375,0.4,0.734375,0.4
+synthetic-v1,4,0.5,0.4,1,0,1,0.5,1,0.5,0.8327205882352941,0.4,0.8327205882352941,0.4

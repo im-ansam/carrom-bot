@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "units": "board widths and seconds; arbitrary 1000 reference units per board width",
+  "parameters": [0.3, 4.0, 0.8],
+  "coordinate_perturbation_bw": 0.0001,
+  "seed": 370037,
+  "parameter_tolerance": 0.01,
+  "description": "Original generated isolated rectangular shots; irregular-time quadratic and deterministic perturbation tests are numerical only, never real observations."
+}

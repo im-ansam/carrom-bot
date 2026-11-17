@@ -6,6 +6,12 @@ The [README module table](../README.md#modules) is the dependency inventory.
 `capture`, `vision` and `overlay` depend on model, never on app or each other.
 No production module edges change in CB-36.
 
+[Offline relative calibration](adr/0026-offline-relative-calibration.md) adds optional
+external-media Python tooling and a test-only production-physics replay. Board
+widths and an explicitly arbitrary reference-unit adapter preserve shared mm-labelled
+contracts. The [measured report](calibration.md) rejects profile use; it does not
+enable live aiming or change synthetic settings. No production module edges change.
+
 ## State, simulation and search
 
 [Shared immutable snapshots](adr/0002-shared-model-contracts.md) use board mm,
