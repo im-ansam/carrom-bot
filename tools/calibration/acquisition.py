@@ -113,6 +113,10 @@ def main():
     args = parser.parse_args()
     if args.new == (args.plan is not None):
         parser.error('Choose exactly one of --new or --plan')
+    if args.plan is not None and (
+            args.output.resolve() == args.plan.resolve()
+            or (args.output.exists() and args.output.samefile(args.plan))):
+        parser.error('Audit output must not replace the acquisition plan')
     value = new_plan() if args.new else audit(json.loads(args.plan.read_text(encoding='utf-8')))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n', encoding='utf-8')

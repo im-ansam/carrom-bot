@@ -48,6 +48,8 @@ py -m unittest discover -s tools/calibration -v
 The audit command exits successfully for a structurally valid but blocked plan;
 consumers must inspect `usable`, `status` and `blockers`. Malformed contracts fail
 with a nonzero exit. Deterministic output contains no wall-clock timestamps.
+The audit refuses an output that is the input plan itself, including symbolic-link
+and hard-link aliases, before reading/writing the audit.
 
 Next work requires confirmed metadata/feasibility, then the sweep and Stage A
 acquisition with sealed custody. Numeric annotation, finite bounded identifiable

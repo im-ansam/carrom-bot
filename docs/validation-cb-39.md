@@ -125,3 +125,31 @@ Preexisting local files preserved/excluded: `gradle.properties` raw Git hash
 `3a2aa96abdecd64884e725797185baa146b48e57`, `gradlew.bat`
 `03754c4c3d9206f5c9ef69e41990dfe26a05251e`, and untracked
 `gradle/gradle-daemon-jvm.properties` `fa4ed510e60d04aa68cf65ecb699f5c9d15b4b15`.
+
+### Codex review follow-up
+
+Review of `ec6c27a` found that acquisition audit output could alias and overwrite
+its populated input plan. `py -m unittest discover -s tools/calibration -p
+test_acquisition.py -k audit_cli -v` reproduced it: exit 1, two failing alias subcases
+(same path/hard link); the separate-output test passed. Only disposable synthetic
+manifests were affected. Added resolved-path and same-file checks before auditing
+or writing. New regressions preserve source bytes for direct, hard-link and actual
+symbolic-link outputs and verify the populated separate-report success case.
+
+Final `py -m unittest discover -s tools/calibration -v`: exit 0, **41 tests in
+12.811s**, no skips; all three alias forms tested on Windows. No numeric profile,
+capture reports or phone manifest changed. Skill review fetch initially failed on
+Windows cp1252 Unicode decoding; retry with `PYTHONUTF8=1` succeeded. Authentication
+was verified; no skill or machine configuration file was edited.
+
+Hosted evidence for reviewed precursor `ec6c27a`: JVM/quality passed (1m13s), Android
+build/lint passed (2m23s). Logs show actual `./gradlew -PjvmOnly projects test check`
+BUILD SUCCESSFUL in 48s, benchmark task in 1s, and `./gradlew projects assembleDebug
+test check lint` in 1m48s (all `--console=plain`). Hosted Python: nine vision-evaluator
+tests and 38 calibration tests passed. Domain and app/vision/overlay unit-test tasks
+executed without UP-TO-DATE/FROM-CACHE suffix; capture unit tests were NO-SOURCE,
+capture aggregate `test` UP-TO-DATE. Java/resource/native NO-SOURCE categories remain
+as listed above. This is actual hosted compilation/build/check/lint evidence, not
+a claim that instrumentation ran. Fresh review and CI for the fix head are still
+required; exact-head results are recorded in Jira after completion. Draft remains
+unmerged because acquisition/profile validation is incomplete.

@@ -1,6 +1,13 @@
 """Synthetic acquisition custody regressions; no recordings or services."""
 import copy
+import contextlib
+import io
+import json
+import os
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 import acquisition
 
@@ -58,3 +65,58 @@ class AcquisitionTest(unittest.TestCase):
         changed['metadata']['game_build'] = 'confirmed-example'
         self.assertNotEqual(acquisition.audit(plan)['plan_sha256'],
                             acquisition.audit(changed)['plan_sha256'])
+
+    def test_audit_cli_preserves_plan_when_output_aliases_it(self):
+        for alias_kind in ('same_path', 'hard_link'):
+            with self.subTest(alias=alias_kind), tempfile.TemporaryDirectory() as directory:
+                plan = acquisition.new_plan()
+                plan['metadata']['game_build'] = 'confirmed-example'
+                plan['attempts'][0].update(disposition='recorded', source_sha256='a' * 64)
+                source = Path(directory) / 'plan.json'
+                source.write_text(json.dumps(plan), encoding='utf-8')
+                original = source.read_bytes()
+                output = source
+                if alias_kind == 'hard_link':
+                    output = Path(directory) / 'audit-alias.json'
+                    os.link(source, output)
+                with patch('sys.argv', ['acquisition', '--plan', str(source),
+                                        '--output', str(output)]), contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as result:
+                        acquisition.main()
+                self.assertEqual(result.exception.code, 2)
+                self.assertEqual(source.read_bytes(), original)
+
+    def test_audit_cli_writes_separate_report_without_modifying_plan(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'plan.json'
+            output = Path(directory) / 'audit.json'
+            plan = acquisition.new_plan()
+            plan['metadata']['game_build'] = 'confirmed-example'
+            plan['attempts'][0].update(disposition='recorded', source_sha256='a' * 64)
+            source.write_text(json.dumps(plan), encoding='utf-8')
+            original = source.read_bytes()
+            with patch('sys.argv', ['acquisition', '--plan', str(source), '--output', str(output)]):
+                acquisition.main()
+            self.assertEqual(source.read_bytes(), original)
+            self.assertEqual(json.loads(output.read_text())['schema'], 'cb39-acquisition-audit-v1')
+            self.assertFalse(json.loads(output.read_text())['usable'])
+            self.assertEqual(json.loads(output.read_text())['recorded'], 1)
+
+    def test_audit_cli_preserves_plan_through_symbolic_link_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'plan.json'
+            output = Path(directory) / 'audit-link.json'
+            source.write_text(json.dumps(acquisition.new_plan()), encoding='utf-8')
+            original = source.read_bytes()
+            try:
+                output.symlink_to(source)
+            except OSError as error:
+                if getattr(error, 'winerror', None) == 1314:
+                    self.skipTest('Windows account lacks symbolic-link creation privilege')
+                raise
+            with patch('sys.argv', ['acquisition', '--plan', str(source),
+                                    '--output', str(output)]), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as result:
+                    acquisition.main()
+            self.assertEqual(result.exception.code, 2)
+            self.assertEqual(source.read_bytes(), original)
