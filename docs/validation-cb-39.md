@@ -200,3 +200,39 @@ was counted as a passing test. No game shots/calibration parameters produced.
 Preexisting three Gradle files' raw hashes rechecked and unchanged from above.
 Fresh hosted checks/review of the final follow-up head are required; draft remains
 unmerged and CB-39 In Progress pending actual controlled acquisition/validation.
+
+### Physical-phone input survey and one timing-only shot
+
+User operated practice manually after the synthetic preflight. Two private native
+recordings were stopped with SIGINT and preserved with distinct hashes. First
+survey pull raced MP4 finalization and failed PyAV `InvalidDataError`; waiting for
+the existing recorder process to exit, then pulling a separate finalized copy,
+resolved decoding. No original was edited or partial transfer accepted. Second
+recording was pulled only after recorder exit. Source hash verification and
+sanitized timing/observation evidence are described in
+`calibration/phone-diagnostics-v1/README.md`; no new profile or matrix result.
+
+Executed `py tools/calibration/capture_timing.py <private-original> --label
+phone-input-survey-01 --output <ignored-report>` and corresponding
+`phone-timing-diagnostic-01` command in the existing PyAV environment: both finalized
+inputs decoded, exit 0. Private overview/detail readers also exited 0; an early
+attempt to view the survey overview before its process completed failed because
+the image did not yet exist, then succeeded after completion. Standard-library
+`assess` on their stored PTS produced sweep 57–69.5s max gap 0.034533333s and
+shot 66–72.8s max gap 0.019844444s. Original full-clip gaps retained. Narrow sprite
+feature reader is unvalidated, not a live detector or body-centre calibration.
+
+One low-pull diagnostic shot had no observed rail/disc contact, but less than one
+second of corroborated terminal rest before reset. Collection pauses at this
+concrete measurement gate. Current protocol/thresholds and split remain unchanged;
+formal attempts/heldouts remain zero. This follow-up changes documentation only;
+no new Gradle execution or additional Android test claim. Previous code-head
+validation remains historical; fresh hosted checks and review apply to this head.
+
+Finalized numeric reports generated with the same CLI into
+`calibration/phone-diagnostics-v1/input-survey-timing.json` (`--interval
+input_sweep 57 69.5`) and `shot-timing.json` (`--interval aim_hold_and_motion 66
+72.8 --interval motion_and_turn_reset 71 73.4`): both exit 0. Standard-library
+reassessment of every stored timing field matched; local original SHA-256 matched
+each report and Android `sha256sum`. `pidof screenrecord` returned no PID (exit 1,
+expected absence) after cleanup. All three preexisting Gradle raw hashes unchanged.

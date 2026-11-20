@@ -1,7 +1,7 @@
 # CB-39 precollection contract (work in progress)
 
 This directory is acquisition preparation, **not a calibration profile**. No new
-phone evidence has arrived. No fit, uncertainty estimate, independent validation,
+formal matrix evidence has arrived. No fit, uncertainty estimate, independent validation,
 production replay or usable recommendation assertion exists. CB-39 remains open;
 CB-40/41 cannot advance from these files. The historical CB-37/38 artifacts remain
 unchanged and cannot supply untouched validation.
@@ -65,3 +65,9 @@ striker body, not an empty board. Retain all later contacts and resets; a usable
 prefix cannot pass missing rest/event gates. The separate
 [emulator diagnostics](../emulator-diagnostics-v1/README.md) do not change this
 phone template, its split or the predeclared acceptance thresholds.
+
+Subsequent [physical-phone diagnostics](../phone-diagnostics-v1/README.md) observed
+the input sweep and one manual low-pull shot. Encoded motion timing was adequate,
+but reset animation prevented the required one second of corroborated rest.
+Neither recording populates this frozen-allocation template or supplies a sealed
+holdout. Further matrix collection awaits resolution of that observation limit.
