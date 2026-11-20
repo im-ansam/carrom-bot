@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import io.github.carrombot.core.overlay.FloatingControls
 
 /** Explicit synthetic source, not gameplay. Fresh system consent is required for every capture run. */
 @Suppress("MagicNumber") // Fixed synthetic-fixture UI dimensions, never game calibration.
@@ -24,7 +25,9 @@ public class SyntheticDemoActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val density = resources.displayMetrics.density
-        val size = resources.displayMetrics.widthPixels / 2 - (16 * density).toInt()
+        val gap = (16 * density).toInt()
+        val width = resources.displayMetrics.widthPixels
+        val size = DemoLayout.fitSourceSize(width / 2 - gap, width, FloatingControls.widthPixels(this), gap)
         board = SyntheticBoardView(this)
         status = TextView(this).apply { setText(R.string.synthetic_explanation) }
         val content =
@@ -74,8 +77,7 @@ public class SyntheticDemoActivity : Activity() {
                 location[0],
                 board.width,
                 minOf(metrics.widthPixels, visibleFrame.right),
-                io.github.carrombot.core.overlay.FloatingControls
-                    .widthPixels(this),
+                FloatingControls.widthPixels(this),
                 gap,
             )
         val previewTop = minOf(metrics.heightPixels, visibleFrame.bottom) - previewHeight - gap

@@ -1,10 +1,31 @@
 package io.github.carrombot
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DemoLayoutTest {
+    @Test
+    fun `phone source shrinks to reserve measured controls and gap`() {
+        val size = DemoLayout.fitSourceSize(500, 1084, 630, 42)
+        assertEquals(412, size)
+        assertTrue(DemoLayout.hasHorizontalClearance(0, size, 1084, 630, 42))
+    }
+
+    @Test
+    fun `wide display retains preferred source size`() {
+        assertEquals(500, DemoLayout.fitSourceSize(500, 1440, 630, 42))
+    }
+
+    @Test
+    fun `insufficient space remains a positive layout dimension and fails clearance`() {
+        val size = DemoLayout.fitSourceSize(500, 640, 630, 42)
+        assertEquals(1, size)
+        assertFalse(DemoLayout.hasHorizontalClearance(0, size, 640, 630, 42))
+        assertEquals(1, DemoLayout.fitSourceSize(500, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE))
+    }
+
     @Test
     fun `360 dp portrait source overlapping 240 dp controls is refused at every density`() {
         listOf(1, 2, 3).forEach { density ->
