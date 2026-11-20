@@ -55,3 +55,11 @@ parameters, explicit uncertainty/unknowns, consistent BW/reference-unit conversi
 frozen model/code hashes and per-shot production-simulator replay must be designed
 and validated before opening new holdouts. Missing/failed gates cannot become zero
 errors. No speculative production dynamics change is justified yet.
+
+2026-11-20 feasibility update: the user confirmed practice starts with the normal
+rack and coins can only be moved through striker shots. No free arrangement editor
+is established. A Stage A clear lane means a coin-free path for the complete
+striker body, not an empty board. Retain all later contacts and resets; a usable
+prefix cannot pass missing rest/event gates. The separate
+[emulator diagnostics](../emulator-diagnostics-v1/README.md) do not change this
+phone template, its split or the predeclared acceptance thresholds.

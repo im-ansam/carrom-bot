@@ -49,3 +49,79 @@ manifest and graphic measurement rule, collect the sweep and Stage A's 16 attemp
 with separate sealed custody. Unknown metadata and unavailable private mode are
 blockers, never defaults. Later contact/pocket evidence is conditional on Stage A
 passing. Keep this ticket open and do not start dependent live work.
+
+## 2026-11-20 emulator diagnostics and PTS audit
+
+User explicitly authorized opening Pixel 10 and operating its practice controls.
+This is a separate diagnostic environment; phone evidence is still absent. Thirteen
+task-created recordings are hashed/inventoried in
+`calibration/emulator-diagnostics-v1/capture-summary.json`. All are unsealed
+diagnostics, not preassigned acquisition; none is sealed validation. Private videos,
+screenshots, account imagery, logs, native captures and local controller scripts
+remain ignored and are excluded from Git.
+No product execution capability, dynamics change or profile assertion was added.
+
+- `py -m unittest discover -s tools/calibration -p test_capture_timing.py -v`:
+  initial red exit 1, missing `capture_timing`; first implemented six tests passed.
+- After adding original-output protection, `py -m unittest discover -s
+  tools/calibration -v`: exit 0, **37 tests in 15.222s**. Seven new regressions cover
+  exact rational 50ms boundary, interval-crossing gaps, idle versus moving gaps,
+  missing/noninteger/repeated/nonmonotonic PTS, invalid clocks/intervals, unknown
+  game-update cadence and rejecting an output equal to the read-only original.
+- Source-review follow-up: `py -m unittest discover -s tools/calibration -p
+  test_capture_timing.py -k hard_link -v`: red exit 1, `Decoder must not run`,
+  demonstrating that a hard-link output alias reached decoding. Added a same-file
+  check before any media access; the synthetic original was protected by a mock
+  during red, not overwritten. The final full-suite result is recorded below.
+- Final `py -m unittest discover -s tools/calibration -v`: exit 0, **38 tests in
+  12.741s**, including the hard-link regression; no private media/services required.
+- `py tools/calibration/capture_timing.py <local original> --label
+  emulator-feasibility-07 --interval motion-1 3.9 7.2 --interval motion-2 11.0 14.2
+  --output .validation/cb39-emulator/timing-07.json`: exit 0. Actual PTS/time_base
+  yields maximum interval gaps 0.033788889/0.049866667s; whole clip 0.081233333s.
+  The command was also used in a local batch for every recorded MP4, with sanitized
+  summaries and two complete numeric PTS reports versioned. Decoder PyAV 19.0.2.
+- `py tools/calibration/capture_timing.py <local original> --label
+  emulator-practice-resume-a1 --interval reviewed-motion 3.3 4.1 --output
+  docs/calibration/emulator-diagnostics-v1/timing-resume-a1.json`: exit 0. Maximum
+  moving-interval gap 0.217033333s, eight gaps over 0.05s: acquisition gate fails.
+  Whole clip maximum gap 0.317344444s. This successful diagnostic does not pass
+  end-of-motion or parameter/profile validation. A smaller-display test timed out
+  before a usable shot; subsequent guard cancelled before firing. All retained.
+- Re-ran both report commands with ignored `*-reproduced.json` output paths;
+  explicit byte-equality checks passed. Report SHA-256: `timing-07.json`
+  `665535b7a9396ba91a776d602882a1535c2d11b956bd2857f277920bb0a5151f`;
+  `timing-resume-a1.json`
+  `1d550f55e88ed455064a20f27e0d2df26cd2e967f87c3ca8af667843e0a01007`.
+  Standard-library reassessment of both stored PTS sequences matched every timing
+  field. Thirteen distinct original hashes and zero sealed validations asserted.
+
+Failures/limits retained: Python without the private media environment initially
+failed `import av`; selecting the existing pinned environment resolved it. The old
+phone-specific marker reader returned no markers in the broad emulator ROI; its
+dataset-specific offsets/thresholds were not promoted to a live detector. Local
+input guards refused ambiguous marker/turn state; no such attempt is scored as a
+shot. Desktop emulator snapshots proved stale; subsequent checks used fresh native
+Android images. No intermediate engine positions or missing clock samples invented.
+
+After interruption, first ADB access failed because emulator-5554 was absent;
+boot-time captures also failed before storage was ready. Android 17 overrode a
+requested 1536MB guest RAM to 4096MB. User closed unused apps and cold boot eventually
+completed. A usage-limit automatic approval-review failure previously prevented a
+command from executing; after user reported reset, the retry ran. These do not
+establish the cause of capture loss. A reversible 720x1616/density280 display test
+was restored with `wm size reset`/`wm density reset`; subsequent reads confirmed
+physical 1080x2424/density420. No emulator wipe, game modification or data deletion.
+
+No new Gradle configuration or Android production code was changed. Local Gradle
+was not run concurrently with the memory-constrained emulator; November 17's
+build evidence above remains historical, not a new execution. Clean hosted JVM
+and Android build/lint results for the new head will be recorded after they finish.
+No instrumentation run; no detector or app integration behavior changed. Full
+CB-39 acceptance, production held-out replay, usable profile and reviewed merge
+remain outstanding. Emulator results cannot unblock phone vision/live integration.
+
+Preexisting local files preserved/excluded: `gradle.properties` raw Git hash
+`3a2aa96abdecd64884e725797185baa146b48e57`, `gradlew.bat`
+`03754c4c3d9206f5c9ef69e41990dfe26a05251e`, and untracked
+`gradle/gradle-daemon-jvm.properties` `fa4ed510e60d04aa68cf65ecb699f5c9d15b4b15`.
