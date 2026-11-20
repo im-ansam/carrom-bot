@@ -153,3 +153,50 @@ as listed above. This is actual hosted compilation/build/check/lint evidence, no
 a claim that instrumentation ran. Fresh review and CI for the fix head are still
 required; exact-head results are recorded in Jira after completion. Draft remains
 unmerged because acquisition/profile validation is incomplete.
+
+### Physical-phone preflight and diagnostic layout regression (2026-11-20)
+
+See `calibration/phone-preflight-v1/README.md` for sanitized observations. No
+private phone media, identifiers, SDK paths or signing material are versioned.
+Earlier statements about no app changes/instrumentation describe the emulator
+precursor; this follow-up changes only synthetic-demo sizing.
+
+- Isolated worktree at ad24ec8, JDK 18: `gradlew.bat :app:assembleDebug
+  --max-workers=1 -Dorg.gradle.jvmargs="-Xmx768m -Dfile.encoding=UTF-8"
+  --console=plain`: exit 0, BUILD SUCCESSFUL in 2m40s, 99 tasks executed.
+  APK SHA-256 `94008b55967160a04267b94adeaa4b4b00eabdac9111255e9eac427627df53e3`;
+  ADB install succeeded, cold launch 1344ms.
+- Same isolated environment, explicitly targeted physical phone:
+  `gradlew.bat :core:vision:connectedDebugAndroidTest --max-workers=1
+  -Dorg.gradle.jvmargs="-Xmx768m -Dfile.encoding=UTF-8" --console=plain`:
+  exit 0, BUILD SUCCESSFUL in 34s, 53 tasks (33 executed, 20 up-to-date).
+  Connected-result XML contains 13 cases, zero failures/errors/skips. App tests
+  that automate consent were not run on the personal phone.
+- Red, main worktree/JDK 25.0.4: `gradlew.bat :app:testDebugUnitTest --tests
+  io.github.carrombot.DemoLayoutTest --max-workers=1
+  -Dorg.gradle.jvmargs="-Xmx768m -Dfile.encoding=UTF-8" --console=plain`:
+  exit 1, BUILD FAILED in 1m17s (68 tasks, 9 executed); new `fitSourceSize`
+  references unresolved before implementation.
+- Green, same main environment: `gradlew.bat projects assembleDebug test check
+  lint --max-workers=1 -Dorg.gradle.jvmargs="-Xmx768m -Dfile.encoding=UTF-8"
+  --console=plain`: exit 0, BUILD SUCCESSFUL in 1m48s, 213 tasks (44 executed,
+  169 up-to-date). App/domain/vision/overlay unit-test tasks executed. Result XML:
+  app 21, model 17, physics 90, planner 66, vision 25, overlay 4: **223 tests**,
+  zero failures/errors. Capture unit tests NO-SOURCE; Java/resource/native
+  NO-SOURCE categories remain as above. Build/check/lint/ktlint/detekt passed.
+  Existing safe-call warning, native-library strip warning, Java Unsafe and
+  Gradle 10 deprecations retained; no failure ignored.
+- Layout-fixed APK from e52f98b SHA-256
+  `b3ce676696a141dae40c29f9b60be663782e008f1b691483047f200042034ec4`:
+  ADB install succeeded, cold launch 980ms. Native UI confirmed 412 × 412 source,
+  fresh consent, synthetic trajectories, 40% to 50% candidate switching and pause
+  clearing. Ending sharing verified `CarromBotListedInProjectionState=False`.
+
+Diagnostic tooling limitations: a live-counter UIAutomator dump could not obtain
+idle state (subsequent pull failed); native screenshots supplied fresh evidence.
+Python initially required escalation; an initial XML parser expected a testsuite
+root, then corrected iteration verified all 13 connected cases. No failed attempt
+was counted as a passing test. No game shots/calibration parameters produced.
+Preexisting three Gradle files' raw hashes rechecked and unchanged from above.
+Fresh hosted checks/review of the final follow-up head are required; draft remains
+unmerged and CB-39 In Progress pending actual controlled acquisition/validation.
