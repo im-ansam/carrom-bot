@@ -71,3 +71,7 @@ the input sweep and one manual low-pull shot. Encoded motion timing was adequate
 but reset animation prevented the required one second of corroborated rest.
 Neither recording populates this frozen-allocation template or supplies a sealed
 holdout. Further matrix collection awaits resolution of that observation limit.
+
+The [terminal observation contract](../terminal-observation-v1.md) now defines
+conservative offline prefix censoring and explicit unobserved stopping state.
+It does not waive this matrix's rest requirement or authorize formal collection.

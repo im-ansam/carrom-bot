@@ -236,3 +236,34 @@ input_sweep 57 69.5`) and `shot-timing.json` (`--interval aim_hold_and_motion 66
 reassessment of every stored timing field matched; local original SHA-256 matched
 each report and Android `sha256sum`. `pidof screenrecord` returned no PID (exit 1,
 expected absence) after cleanup. All three preexisting Gradle raw hashes unchanged.
+
+### Terminal observation contract (2026-11-21)
+
+Resumed from saved checkpoint without requesting more phone shots or starting
+capture. Re-read CB-39, parent CB-6 and prerequisite CB-38; inspected saved terminal
+frames and existing protocol/tooling. Added ADR0028, a separate terminal observation
+contract and standard-library `terminal_observation.censor_prefix`. Two adjacent
+source-frame boundary annotations yield a conservative union bracket and prefix
+strictly before it; the entire later tail is excluded. Invalid clocks/hashes,
+nonadjacent points and duplicate/missing passes fail explicitly. Disagreement and
+>50ms prefix/transition gaps remain blockers. Outputs cannot assert rest or a
+usable profile. Annotation independence and true body centres remain unverified;
+different IDs alone are not independent evidence. No existing plan/gate changed.
+
+Red: `py -m unittest discover -s tools/calibration -p
+test_terminal_observation.py -v`, exit 1, ModuleNotFoundError before implementation.
+Green: same command, exit 0, 8 tests in 0.004s. Full `py -m unittest discover -s
+tools/calibration -v`, exit 0, 49 tests in 4.964s, no skips. Fixtures are original
+synthetic clocks/annotations, independent of recordings/services/devices. No new
+local Gradle or instrumentation execution claimed for this Python-only change;
+fresh hosted JVM/quality and Android build/lint plus exact-head Codex review remain
+required. Physical stopping/independent validation/profile acceptance still absent;
+PR remains draft, CB-39 incomplete, no CB-40/41 work.
+
+After making both missing stopping fields explicit (`stop_time_s` and
+`stop_position_bw` null), full calibration suite passed again: 49 tests in 4.577s,
+exit 0, no skips. `py -m py_compile tools/calibration/terminal_observation.py
+tools/calibration/test_terminal_observation.py` and `git diff --check` exited 0.
+The three preexisting Gradle raw hashes were rechecked unchanged. No independent
+pair of real body/phase annotations is asserted; the saved shot has not been
+converted into accepted prefix measurements by the synthetic tests.
