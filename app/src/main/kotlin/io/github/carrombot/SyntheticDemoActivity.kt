@@ -71,7 +71,6 @@ public class SyntheticDemoActivity : Activity() {
         val visibleFrame = android.graphics.Rect()
         board.getWindowVisibleDisplayFrame(visibleFrame)
         val gap = (16 * resources.displayMetrics.density).toInt()
-        val previewHeight = board.width + (148 * resources.displayMetrics.density).toInt()
         val horizontal =
             DemoLayout.hasHorizontalClearance(
                 location[0],
@@ -80,8 +79,14 @@ public class SyntheticDemoActivity : Activity() {
                 FloatingControls.widthPixels(this),
                 gap,
             )
-        val previewTop = minOf(metrics.heightPixels, visibleFrame.bottom) - previewHeight - gap
-        val vertical = location[1] + board.height < previewTop
+        val vertical =
+            DemoLayout.hasVerticalClearance(
+                location[1],
+                board.height,
+                minOf(metrics.heightPixels, visibleFrame.bottom),
+                resources.displayMetrics.widthPixels,
+                resources.displayMetrics.density,
+            )
         if (!horizontal || board.width < 100 || !vertical) {
             status.setText(R.string.synthetic_needs_space)
             return

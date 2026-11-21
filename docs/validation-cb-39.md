@@ -267,3 +267,36 @@ tools/calibration/test_terminal_observation.py` and `git diff --check` exited 0.
 The three preexisting Gradle raw hashes were rechecked unchanged. No independent
 pair of real body/phase annotations is asserted; the saved shot has not been
 converted into accepted prefix measurements by the synthetic tests.
+
+### Review: use actual preview height after shrinking the source
+
+Codex review of 0a5d9d3 identified an overlap guard defect in the earlier Android
+diagnostic fix. The 412px source was guarded against a 412px preview even though
+the renderer still used 500px. Shared `SyntheticPreviewLayout.dimensions` now
+supplies both renderer and pre-consent vertical guard, including separately rounded
+title/legend sizes. Source fitting remains separate. Invalid/unrepresentable
+metrics refuse the preview; source-bound arithmetic uses Long.
+
+Red: same JDK25/environment/flags as the earlier physical preflight,
+`gradlew.bat :app:testDebugUnitTest --tests io.github.carrombot.DemoLayoutTest
+--max-workers=1 -Dorg.gradle.jvmargs="-Xmx768m -Dfile.encoding=UTF-8"
+--console=plain`, exit 1, BUILD FAILED in 25s, 78 tasks (5 executed, 73 up-to-date).
+Six DemoLayout tests ran; the new 1084px/2.625 density constrained-height case
+failed its no-overlap assertion. New overlay tests cover actual 500×888px preview,
+fractional-density child rounding and unusable/overflowing metrics; app regression
+covers overlap, exact edge, one-pixel clearance and overflow.
+
+First full `projects assembleDebug test check lint` attempt after implementation
+failed detekt (30s, 164 tasks: 20 executed, 144 up-to-date): two ReturnCount findings
+and one ComplexCondition finding in the new helpers. Restructured guards/returns
+without suppressing these findings. No failure ignored. Subsequent full-check
+outcome and exact-head hosted review evidence are recorded below/in Jira.
+No phone installation, permission automation or physical acceptance rerun claimed.
+
+Final full command `gradlew.bat projects assembleDebug test check lint
+--max-workers=1 -Dorg.gradle.jvmargs="-Xmx768m -Dfile.encoding=UTF-8"
+--console=plain`: exit 0, BUILD SUCCESSFUL in 1m11s, 213 tasks (41 executed,
+172 up-to-date). App/overlay unit tasks executed: 22 app and 7 overlay cases,
+zero failures/errors. Other domain/vision unit tasks UP-TO-DATE, capture JVM
+NO-SOURCE. Detekt/ktlint/Android lint passed. Existing Java Unsafe and Gradle 10
+deprecation warnings retained. Preexisting user Gradle raw hashes unchanged.

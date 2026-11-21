@@ -141,7 +141,7 @@ public class OverlayController(
      * Bounded non-touchable window stays below Android's obscuring-opacity threshold. Hidden controls
      * never reattach it. Keeping preview off the source viewport avoids capture/overlay feedback.
      */
-    @Suppress("MagicNumber", "ReturnCount") // Fixed preview layout/opacity with explicit refusal paths.
+    @Suppress("ReturnCount") // Explicit refusal paths before attaching a preview window.
     public fun updateSyntheticPreview(scene: OverlayScene?): Boolean {
         checkMain()
         if (alreadyShowing(scene)) return true
@@ -150,10 +150,11 @@ public class OverlayController(
         if (scene == null) return true
         if (!Settings.canDrawOverlays(context)) return false
         val density = context.resources.displayMetrics.density
-        val width = context.resources.displayMetrics.widthPixels / 2 - (16 * density).toInt()
-        val legendHeight = (100 * density).toInt()
-        val titleHeight = (48 * density).toInt()
-        if (width <= 0) return false
+        val dimensions =
+            SyntheticPreviewLayout.dimensions(context.resources.displayMetrics.widthPixels, density) ?: return false
+        val width = dimensions.width
+        val legendHeight = dimensions.legendHeight
+        val titleHeight = dimensions.titleHeight
         val trajectory = TrajectoryView(context)
         val candidate = previewView(trajectory, width, legendHeight, titleHeight)
         try {
@@ -161,7 +162,7 @@ public class OverlayController(
                 WindowManager
                     .LayoutParams(
                         width,
-                        width + legendHeight + titleHeight,
+                        dimensions.height,
                         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                         PixelFormat.TRANSLUCENT,

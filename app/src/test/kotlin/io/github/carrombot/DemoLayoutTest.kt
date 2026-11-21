@@ -7,6 +7,15 @@ import org.junit.Test
 
 class DemoLayoutTest {
     @Test
+    fun `shrunk phone source refuses overlap with larger actual preview`() {
+        assertFalse(DemoLayout.hasVerticalClearance(263, 412, 1600, 1084, 2.625f))
+        assertFalse(DemoLayout.hasVerticalClearance(263, 412, 1605, 1084, 2.625f))
+        assertTrue(DemoLayout.hasVerticalClearance(263, 412, 1606, 1084, 2.625f))
+        assertFalse(DemoLayout.hasVerticalClearance(Int.MAX_VALUE, Int.MAX_VALUE, 1606, 1084, 2.625f))
+        assertFalse(DemoLayout.hasVerticalClearance(263, 412, 1606, 80, 3f))
+    }
+
+    @Test
     fun `phone source shrinks to reserve measured controls and gap`() {
         val size = DemoLayout.fitSourceSize(500, 1084, 630, 42)
         assertEquals(412, size)
