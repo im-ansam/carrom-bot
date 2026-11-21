@@ -1,0 +1,382 @@
+{
+  "schema": "cb39-emulator-diagnostics-v1",
+  "status": "diagnostic_only_no_profile",
+  "sealed_validation_shots": 0,
+  "captures": [
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 2208,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 92.99833333333333,
+      "min_gap_s": 0.006055555555555555,
+      "max_gap_s": 0.24847777777777777,
+      "gaps_over_50ms": 514,
+      "intervals": [],
+      "clip": "emulator-feasibility-01",
+      "sha256": "740a9a0295a04a44ced8742ff9300e494df2cf30656de894fbf9f71a33d6d61f",
+      "resolution": [
+        1080,
+        2424
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Unsealed setup/control diagnostic; no preassigned acquisition or held-out allocation"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 637,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 29.339677777777776,
+      "min_gap_s": 0.013766666666666667,
+      "max_gap_s": 0.8179888888888889,
+      "gaps_over_50ms": 165,
+      "intervals": [],
+      "clip": "emulator-feasibility-02",
+      "sha256": "9b80dd830d9e52001a8b2093d945fea2006e6ebf2cccb203031c349bdbe60227",
+      "resolution": [
+        1080,
+        2424
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Unsealed setup/control diagnostic; no preassigned acquisition or held-out allocation"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 1331,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 59.290144444444444,
+      "min_gap_s": 0.0047777777777777775,
+      "max_gap_s": 0.31455555555555553,
+      "gaps_over_50ms": 309,
+      "intervals": [],
+      "clip": "emulator-feasibility-03",
+      "sha256": "cf75ad286597fa709910b22977d4ea760eed25693eb77abbf2cc2650815c2472",
+      "resolution": [
+        1080,
+        2424
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Unsealed setup/control diagnostic; no preassigned acquisition or held-out allocation"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 631,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 19.555411111111113,
+      "min_gap_s": 0.004555555555555556,
+      "max_gap_s": 0.1834,
+      "gaps_over_50ms": 79,
+      "intervals": [],
+      "clip": "emulator-feasibility-04",
+      "sha256": "43433863b90d48bef8b36fbb82257301b0f571cfa5fd0bed6e85227dacc87c98",
+      "resolution": [
+        720,
+        1616
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Unsealed setup/control diagnostic; no preassigned acquisition or held-out allocation"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 530,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 14.571044444444444,
+      "min_gap_s": 0.005588888888888889,
+      "max_gap_s": 0.1176,
+      "gaps_over_50ms": 33,
+      "intervals": [],
+      "clip": "emulator-feasibility-05",
+      "sha256": "65cbeb2b193ccb9e3a785313000fe9066d189b78e22e05afcf3bde275309f2d7",
+      "resolution": [
+        720,
+        1616
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Unsealed setup/control diagnostic; no preassigned acquisition or held-out allocation"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 3392,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 59.939,
+      "min_gap_s": 0.005577777777777778,
+      "max_gap_s": 0.08275555555555555,
+      "gaps_over_50ms": 12,
+      "intervals": [],
+      "clip": "emulator-feasibility-06",
+      "sha256": "71dae355d5607511a4eb055c147437749c6b48e6b4dffdf59c1d813fbd638e6d",
+      "resolution": [
+        540,
+        1212
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Unsealed setup/control diagnostic; no preassigned acquisition or held-out allocation"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 1094,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 19.747877777777777,
+      "min_gap_s": 0.003977777777777778,
+      "max_gap_s": 0.08123333333333334,
+      "gaps_over_50ms": 7,
+      "intervals": [
+        {
+          "id": "motion-1",
+          "start_s": 3.9,
+          "end_s": 7.2,
+          "max_gap_s": 0.03378888888888889,
+          "gaps_over_50ms": 0
+        },
+        {
+          "id": "motion-2",
+          "start_s": 11.0,
+          "end_s": 14.2,
+          "max_gap_s": 0.04986666666666666,
+          "gaps_over_50ms": 0
+        }
+      ],
+      "clip": "emulator-feasibility-07",
+      "sha256": "f16b5699940490e89fe7f6d5d96d6010649db0ecf7b620bbb416d92f5a628027",
+      "resolution": [
+        540,
+        1212
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Unsealed setup/control diagnostic; no preassigned acquisition or held-out allocation"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 1393,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 24.901433333333333,
+      "min_gap_s": 0.0048222222222222225,
+      "max_gap_s": 0.1155111111111111,
+      "gaps_over_50ms": 8,
+      "intervals": [],
+      "clip": "emulator-feasibility-08",
+      "sha256": "eebe3f7d6fbcf02c2aaf1dd155c7247886ba294ffb4b689ab51a56d8cf8ffaae",
+      "resolution": [
+        540,
+        1212
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Unsealed setup/control diagnostic; no preassigned acquisition or held-out allocation"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 1104,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 19.865455555555556,
+      "min_gap_s": 0.005266666666666667,
+      "max_gap_s": 0.11661111111111111,
+      "gaps_over_50ms": 6,
+      "intervals": [],
+      "clip": "emulator-feasibility-09",
+      "sha256": "9f1594ee842fc423d604836078ba9fc53a6c58f1e71a1628d2edb40963bc7a4f",
+      "resolution": [
+        540,
+        1212
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Unsealed setup/control diagnostic; no preassigned acquisition or held-out allocation"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 299,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 19.337622222222222,
+      "min_gap_s": 0.013777777777777778,
+      "max_gap_s": 0.31734444444444443,
+      "gaps_over_50ms": 167,
+      "intervals": [
+        {
+          "id": "reviewed-motion",
+          "start_s": 3.3,
+          "end_s": 4.1,
+          "max_gap_s": 0.21703333333333333,
+          "gaps_over_50ms": 8
+        }
+      ],
+      "clip": "emulator-practice-resume-a1",
+      "sha256": "fab70e5b94065d0c5abcc921b046131ff3dbbc26fa7d845e3ec779c58e26d181",
+      "resolution": [
+        540,
+        1212
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Fired lower-input shot; reviewed moving interval fails 50ms capture-gap gate; rest not corroborated for one second"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 196,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 13.506611111111111,
+      "min_gap_s": 0.01632222222222222,
+      "max_gap_s": 0.3882555555555556,
+      "gaps_over_50ms": 115,
+      "intervals": [],
+      "clip": "emulator-practice-lowres-a2",
+      "sha256": "11a9fa7b067bdbfd8176b126d4c142a349e550118ab2d1066208838ae9b37d71",
+      "resolution": [
+        540,
+        1212
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        720,
+        1616
+      ],
+      "density": 280,
+      "disposition": "Turn reset during setup; no accepted physical shot; display experiment only"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 246,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 14.175611111111111,
+      "min_gap_s": 0.014266666666666667,
+      "max_gap_s": 0.2947,
+      "gaps_over_50ms": 132,
+      "intervals": [],
+      "clip": "emulator-practice-lowres-a5-cancelled",
+      "sha256": "c015bc39c737bafbe843feea7c09c8ab09681bcd7623a2deacf374439f347a43",
+      "resolution": [
+        540,
+        1212
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "practice",
+      "native_display": [
+        720,
+        1616
+      ],
+      "density": 280,
+      "disposition": "Guard cancelled before firing; no unique active marker after placement"
+    },
+    {
+      "schema": "cb39-capture-timing-v1",
+      "status": "diagnostic_only_no_profile",
+      "game_update_clock": "unknown",
+      "frames": 830,
+      "time_base": "1/90000",
+      "first_s": 0.0,
+      "last_s": 14.865422222222222,
+      "min_gap_s": 0.004877777777777778,
+      "max_gap_s": 0.27965555555555555,
+      "gaps_over_50ms": 9,
+      "intervals": [],
+      "clip": "emulator-tutorial-control-01",
+      "sha256": "9e262d17bd5c67913e44e3895f9542ddf3c3967a698c312f5f026261a548a875",
+      "resolution": [
+        540,
+        1212
+      ],
+      "decoder": "PyAV 19.0.2",
+      "mode": "tutorial",
+      "native_display": [
+        1080,
+        2424
+      ],
+      "density": 420,
+      "disposition": "Tutorial completed; distinct theme and constrained scripted target; excluded from practice calibration"
+    }
+  ],
+  "custody": "unsealed_diagnostic_collection"
+}
